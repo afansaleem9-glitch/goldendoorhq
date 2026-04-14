@@ -3,7 +3,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, Building2, Handshake, CheckSquare,
-  Ticket, BarChart3, Settings, Search, Bell, User
+  Ticket, BarChart3, Settings, Search, Bell, User, Sun, Mail,
+  Calendar, FileSignature, Activity, DollarSign, Package, Plug,
+  Workflow, Globe
 } from "lucide-react";
 
 const navItems = [
@@ -11,8 +13,18 @@ const navItems = [
   { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/deals", label: "Deals", icon: Handshake },
+  { href: "/solar", label: "Solar", icon: Sun },
+  { href: "/scheduling", label: "Scheduling", icon: Calendar },
+  { href: "/contracts", label: "Contracts", icon: FileSignature },
+  { href: "/monitoring", label: "Monitoring", icon: Activity },
+  { href: "/accounting", label: "Accounting", icon: DollarSign },
+  { href: "/catalog", label: "Catalog", icon: Package },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
   { href: "/tickets", label: "Tickets", icon: Ticket },
+  { href: "/marketing", label: "Marketing", icon: Mail },
+  { href: "/workflows", label: "Workflows", icon: Workflow },
+  { href: "/integrations", label: "Integrations", icon: Plug },
+  { href: "/portal", label: "Portal", icon: Globe },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

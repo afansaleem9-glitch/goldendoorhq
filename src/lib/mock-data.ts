@@ -1,4 +1,4 @@
-import { Contact, Company, Deal, Task, Ticket, Activity, PipelineStage } from './types';
+import { Contact, Company, Deal, Task, Ticket, Activity, PipelineStage, SolarProject, SolarStageInfo, EmailCampaign, EmailTemplate } from './types';
 
 export const pipelineStages: PipelineStage[] = [
   { id: 's1', name: 'Appointment Scheduled', probability: 20, color: '#3B82F6', deal_count: 8, total_value: 124000 },
@@ -122,3 +122,122 @@ export const dashboardMetrics = {
     { rep: 'Sarah Kim', deals_closed: 3, revenue: 42000, quota_pct: 52 },
   ],
 };
+
+export const SOLAR_STAGES: SolarStageInfo[] = [
+  { key: 'contract_signed', label: 'Contract Signed', shortLabel: 'Contract', color: '#3B82F6', icon: 'FileCheck' },
+  { key: 'site_survey_scheduled', label: 'Site Survey Scheduled', shortLabel: 'Survey Sched.', color: '#6366F1', icon: 'CalendarCheck' },
+  { key: 'site_survey_completed', label: 'Site Survey Completed', shortLabel: 'Survey Done', color: '#8B5CF6', icon: 'ClipboardCheck' },
+  { key: 'cads_in_progress', label: 'CADs In Progress', shortLabel: 'CADs WIP', color: '#A855F7', icon: 'PenTool' },
+  { key: 'cads_completed', label: 'CADs Completed', shortLabel: 'CADs Done', color: '#D946EF', icon: 'FileImage' },
+  { key: 'permits_submitted', label: 'Permits Submitted', shortLabel: 'Permits Sub.', color: '#F59E0B', icon: 'FileText' },
+  { key: 'permits_approved', label: 'Permits Approved', shortLabel: 'Permits OK', color: '#EAB308', icon: 'BadgeCheck' },
+  { key: 'install_scheduled', label: 'Install Scheduled', shortLabel: 'Install Sched.', color: '#F97316', icon: 'Calendar' },
+  { key: 'install_in_progress', label: 'Install In Progress', shortLabel: 'Installing', color: '#EA580C', icon: 'Wrench' },
+  { key: 'install_completed', label: 'Install Completed', shortLabel: 'Installed', color: '#DC2626', icon: 'Hammer' },
+  { key: 'inspection_scheduled', label: 'Inspection Scheduled', shortLabel: 'Insp. Sched.', color: '#14B8A6', icon: 'Search' },
+  { key: 'inspection_passed', label: 'Inspection Passed', shortLabel: 'Insp. Passed', color: '#10B981', icon: 'ShieldCheck' },
+  { key: 'pto_submitted', label: 'PTO Submitted', shortLabel: 'PTO Sub.', color: '#059669', icon: 'Send' },
+  { key: 'pto_approved', label: 'PTO Approved', shortLabel: 'PTO OK', color: '#047857', icon: 'CheckCircle' },
+  { key: 'final_completion', label: 'Final Completion', shortLabel: 'Complete', color: '#22C55E', icon: 'Award' },
+];
+
+export const solarProjects: SolarProject[] = [
+  {
+    id: 'sp1', contact_name: 'Sarah Johnson', contact_email: 'sarah.j@techcorp.com', contact_phone: '(512) 555-0142',
+    rep_name: 'Afan Saleem', current_stage: 'install_in_progress', system_size_kw: 12.4, panel_count: 31,
+    panel_type: 'REC Alpha Pure-R 400W', inverter_type: 'Enphase IQ8+', financing_type: 'loan',
+    contract_amount: 42800, address: '2847 Sunset Ridge', city: 'Austin', state: 'TX', zip: '78746',
+    utility_company: 'Austin Energy', ahj: 'City of Austin',
+    contract_signed_at: '2026-01-15', site_survey_completed_at: '2026-01-28',
+    cads_completed_at: '2026-02-10', permits_approved_at: '2026-02-28',
+    created_at: '2026-01-15', updated_at: '2026-04-01',
+  },
+  {
+    id: 'sp2', contact_name: 'Marcus Williams', contact_email: 'marcus@buildright.com', contact_phone: '(614) 555-0198',
+    rep_name: 'James Reed', current_stage: 'permits_submitted', system_size_kw: 8.8, panel_count: 22,
+    panel_type: 'Canadian Solar 400W', inverter_type: 'SolarEdge SE7600H', financing_type: 'cash',
+    contract_amount: 29400, address: '1455 Oak Park Blvd', city: 'Columbus', state: 'OH', zip: '43215',
+    utility_company: 'AEP Ohio', ahj: 'City of Columbus',
+    contract_signed_at: '2026-02-20', site_survey_completed_at: '2026-03-05',
+    cads_completed_at: '2026-03-18',
+    created_at: '2026-02-20', updated_at: '2026-03-25',
+  },
+  {
+    id: 'sp3', contact_name: 'Emily Chen', contact_email: 'echen@novahome.io', contact_phone: '(313) 555-0267',
+    rep_name: 'Mike Torres', current_stage: 'site_survey_scheduled', system_size_kw: 10.0, panel_count: 25,
+    panel_type: 'Qcells Q.PEAK DUO 400W', inverter_type: 'Enphase IQ8M', financing_type: 'loan',
+    contract_amount: 35600, address: '890 Maple Dr', city: 'Detroit', state: 'MI', zip: '48201',
+    utility_company: 'DTE Energy', ahj: 'City of Detroit',
+    contract_signed_at: '2026-04-02',
+    created_at: '2026-04-02', updated_at: '2026-04-05',
+  },
+  {
+    id: 'sp4', contact_name: 'Robert Martinez', contact_email: 'robert.m@sunvalley.com', contact_phone: '(512) 555-0334',
+    rep_name: 'Afan Saleem', current_stage: 'pto_submitted', system_size_kw: 15.6, panel_count: 39,
+    panel_type: 'REC Alpha Pure-R 400W', inverter_type: 'Enphase IQ8+', financing_type: 'ppa',
+    contract_amount: 52200, address: '5678 Longhorn Way', city: 'San Antonio', state: 'TX', zip: '78229',
+    utility_company: 'CPS Energy', ahj: 'City of San Antonio',
+    contract_signed_at: '2025-12-10', site_survey_completed_at: '2025-12-20',
+    cads_completed_at: '2026-01-08', permits_approved_at: '2026-01-30',
+    install_completed_at: '2026-02-15', inspection_passed_at: '2026-03-01',
+    created_at: '2025-12-10', updated_at: '2026-03-20',
+  },
+  {
+    id: 'sp5', contact_name: 'Jennifer Thompson', contact_email: 'jthompson@greenbuild.org', contact_phone: '(614) 555-0411',
+    rep_name: 'Sarah Kim', current_stage: 'cads_in_progress', system_size_kw: 6.4, panel_count: 16,
+    panel_type: 'LG NeON R 400W', inverter_type: 'SolarEdge SE5000H', financing_type: 'loan',
+    contract_amount: 22800, address: '342 Green Valley Rd', city: 'Cincinnati', state: 'OH', zip: '45202',
+    utility_company: 'Duke Energy Ohio', ahj: 'Hamilton County',
+    contract_signed_at: '2026-03-15', site_survey_completed_at: '2026-03-28',
+    created_at: '2026-03-15', updated_at: '2026-04-03',
+  },
+  {
+    id: 'sp6', contact_name: 'David Patel', contact_email: 'dpatel@safeguard.net', contact_phone: '(313) 555-0523',
+    rep_name: 'James Reed', current_stage: 'final_completion', system_size_kw: 11.2, panel_count: 28,
+    panel_type: 'SunPower M-Series 400W', inverter_type: 'Enphase IQ8+', financing_type: 'cash',
+    contract_amount: 39800, address: '1920 Liberty St', city: 'Ann Arbor', state: 'MI', zip: '48104',
+    utility_company: 'DTE Energy', ahj: 'City of Ann Arbor',
+    contract_signed_at: '2025-10-05', site_survey_completed_at: '2025-10-18',
+    cads_completed_at: '2025-11-01', permits_approved_at: '2025-11-20',
+    install_completed_at: '2025-12-10', inspection_passed_at: '2025-12-22',
+    pto_approved_at: '2026-01-15', completed_at: '2026-01-15',
+    created_at: '2025-10-05', updated_at: '2026-01-15',
+  },
+  {
+    id: 'sp7', contact_name: 'Lisa Rodriguez', contact_email: 'lisa.r@horizondev.com', contact_phone: '(512) 555-0687',
+    rep_name: 'Mike Torres', current_stage: 'contract_signed', system_size_kw: 20.0, panel_count: 50,
+    panel_type: 'Canadian Solar 400W', inverter_type: 'SolarEdge SE10000H', financing_type: 'lease',
+    contract_amount: 68000, address: '4500 Industrial Pkwy', city: 'Houston', state: 'TX', zip: '77002',
+    utility_company: 'CenterPoint Energy', ahj: 'City of Houston',
+    contract_signed_at: '2026-04-10',
+    created_at: '2026-04-10', updated_at: '2026-04-10',
+  },
+  {
+    id: 'sp8', contact_name: 'Amanda Foster', contact_email: 'amanda.f@suncoast.com', contact_phone: '(512) 555-0891',
+    rep_name: 'Afan Saleem', current_stage: 'inspection_scheduled', system_size_kw: 9.6, panel_count: 24,
+    panel_type: 'Qcells Q.PEAK DUO 400W', inverter_type: 'Enphase IQ8M', financing_type: 'loan',
+    contract_amount: 33200, address: '7722 Sunset Blvd', city: 'Dallas', state: 'TX', zip: '75201',
+    utility_company: 'Oncor', ahj: 'City of Dallas',
+    contract_signed_at: '2026-01-20', site_survey_completed_at: '2026-02-03',
+    cads_completed_at: '2026-02-18', permits_approved_at: '2026-03-05',
+    install_completed_at: '2026-03-25',
+    created_at: '2026-01-20', updated_at: '2026-04-08',
+  },
+];
+
+export const emailCampaigns: EmailCampaign[] = [
+  { id: 'ec1', name: 'Spring Solar Promo 2026', subject: 'Go Solar This Spring — Save Up to 30%', status: 'sent', list_name: 'All Leads - Texas', sent: 2450, delivered: 2380, opened: 892, clicked: 234, bounced: 70, sent_at: '2026-03-15', created_at: '2026-03-10' },
+  { id: 'ec2', name: 'Smart Home Bundle Launch', subject: 'Introducing the Delta Smart Home Bundle', status: 'scheduled', list_name: 'Smart Home Leads', sent: 0, delivered: 0, opened: 0, clicked: 0, bounced: 0, send_at: '2026-04-20', created_at: '2026-04-12' },
+  { id: 'ec3', name: 'Roofing Season Kickoff', subject: 'Your Roof. Our Expertise. Free Inspection.', status: 'sent', list_name: 'Roofing Leads - OH & MI', sent: 1820, delivered: 1756, opened: 623, clicked: 178, bounced: 64, sent_at: '2026-03-01', created_at: '2026-02-25' },
+  { id: 'ec4', name: 'Referral Rewards Program', subject: 'Earn $500 For Every Friend You Refer', status: 'sent', list_name: 'All Customers', sent: 890, delivered: 872, opened: 445, clicked: 156, bounced: 18, sent_at: '2026-02-14', created_at: '2026-02-10' },
+  { id: 'ec5', name: 'Tax Credit Reminder 2026', subject: 'Don\'t Miss the 30% Federal Solar Tax Credit', status: 'draft', list_name: 'Solar Leads - All States', sent: 0, delivered: 0, opened: 0, clicked: 0, bounced: 0, created_at: '2026-04-13' },
+];
+
+export const emailTemplates: EmailTemplate[] = [
+  { id: 'et1', name: 'Solar Welcome Sequence - Day 1', subject: 'Welcome to GoldenDoor Solar', category: 'Solar', html_content: '<h1>Welcome!</h1>', usage_count: 145, created_at: '2025-11-01' },
+  { id: 'et2', name: 'Appointment Confirmation', subject: 'Your Appointment is Confirmed', category: 'Sales', html_content: '<h1>Confirmed</h1>', usage_count: 892, created_at: '2025-10-15' },
+  { id: 'et3', name: 'Post-Install Thank You', subject: 'Your Solar System is Live!', category: 'Solar', html_content: '<h1>Congrats!</h1>', usage_count: 67, created_at: '2026-01-10' },
+  { id: 'et4', name: 'Referral Request', subject: 'Know Someone Who Needs Solar?', category: 'Marketing', html_content: '<h1>Refer</h1>', usage_count: 234, created_at: '2025-12-20' },
+  { id: 'et5', name: 'Payment Reminder', subject: 'Friendly Payment Reminder', category: 'Billing', html_content: '<h1>Reminder</h1>', usage_count: 56, created_at: '2026-02-01' },
+  { id: 'et6', name: 'Smart Home Promo', subject: 'Upgrade Your Home With Smart Technology', category: 'Smart Home', html_content: '<h1>Smart Home</h1>', usage_count: 312, created_at: '2025-11-15' },
+];
