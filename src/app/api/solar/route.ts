@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       .from('solar_projects')
       .select(`
         *,
-        contacts(first_name, last_name, email, phone, address_line1, city, state, zip),
+        contacts(first_name, last_name, email, phone, address, city, state, zip),
         companies(name),
         deals(name, amount)
       `, { count: 'exact' })

@@ -20,8 +20,7 @@ export async function GET(req: NextRequest) {
       .select(`
         *,
         contacts(first_name, last_name, email, phone),
-        companies(name),
-        ticket_statuses(name, pipeline_id)
+        companies(name)
       `, { count: 'exact' })
       .is('deleted_at', null)
       .range(offset, offset + limit - 1)

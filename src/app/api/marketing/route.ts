@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     if (type === 'campaigns') {
       let query = supabase
         .from('email_campaigns')
-        .select('*, email_templates(name), contact_lists(name, member_count)', { count: 'exact' })
+        .select('*, email_templates(name), contact_lists(name, contact_count)', { count: 'exact' })
         .is('deleted_at', null)
         .range(offset, offset + limit - 1)
         .order('created_at', { ascending: false });

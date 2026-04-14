@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useApi } from '@/lib/hooks/useApi';
 import { Contact } from '@/lib/types';
+import Link from 'next/link';
 import { Search, Plus, ChevronLeft, ChevronRight, Loader, User } from 'lucide-react';
 
 const stageBadge: Record<string, string> = {
@@ -60,8 +61,8 @@ export default function ContactsPage() {
             </tr></thead>
             <tbody className="divide-y divide-gray-100">
               {contacts.map(c => (
-                <tr key={c.id} className="hover:bg-gray-50 transition-colors cursor-pointer">
-                  <td className="px-4 py-3 font-medium text-[#0B1F3A]">{c.full_name || `${c.first_name || ''} ${c.last_name || ''}`.trim() || '—'}</td>
+                <tr key={c.id} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => window.location.href = `/contacts/${c.id}`}>
+                  <td className="px-4 py-3 font-medium text-[#0B1F3A]"><Link href={`/contacts/${c.id}`} className="hover:text-[#007A67] hover:underline">{c.full_name || `${c.first_name || ''} ${c.last_name || ''}`.trim() || '—'}</Link></td>
                   <td className="px-4 py-3 text-[#6B7280]">{c.email || '—'}</td>
                   <td className="px-4 py-3 text-[#6B7280]">{c.phone || c.mobile || '—'}</td>
                   <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${stageBadge[c.lifecycle_stage] || 'bg-gray-100 text-gray-700'}`}>{c.lifecycle_stage || 'lead'}</span></td>

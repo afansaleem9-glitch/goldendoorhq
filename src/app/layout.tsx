@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
+import { AIAssistant } from "@/components/AIAssistant";
 
 export const metadata: Metadata = {
   title: "GoldenDoor CRM",
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#F3F4F6]">
         <NavBar />
         <main className="flex-1 pt-[60px]">{children}</main>
+        <AIAssistant />
       </body>
     </html>
   );

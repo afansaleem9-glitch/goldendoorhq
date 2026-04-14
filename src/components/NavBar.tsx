@@ -5,11 +5,12 @@ import {
   LayoutDashboard, Users, Building2, Handshake, CheckSquare,
   Ticket, BarChart3, Settings, Search, Bell, User, Sun, Mail,
   Calendar, FileSignature, Activity, DollarSign, Package, Plug,
-  Workflow, Globe
+  Workflow, Globe, Zap, Wrench, HelpCircle, Dna
 } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/customers", label: "Customer DNA", icon: Dna, highlight: true },
   { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/deals", label: "Deals", icon: Handshake },
@@ -25,8 +26,11 @@ const navItems = [
   { href: "/workflows", label: "Workflows", icon: Workflow },
   { href: "/integrations", label: "Integrations", icon: Plug },
   { href: "/portal", label: "Portal", icon: Globe },
+  { href: "/rep-portal", label: "Rep Portal", icon: Zap },
+  { href: "/tech-portal", label: "Tech Portal", icon: Wrench },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/help", label: "Help", icon: HelpCircle },
 ];
 
 export function NavBar() {
@@ -47,6 +51,7 @@ export function NavBar() {
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
           const Icon = item.icon;
+          const isHighlight = "highlight" in item && item.highlight;
           return (
             <Link
               key={item.href}
@@ -54,6 +59,8 @@ export function NavBar() {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
                 isActive
                   ? "text-[#F0A500] bg-white/10"
+                  : isHighlight
+                  ? "text-[#F0A500] hover:text-[#F0A500] hover:bg-white/10"
                   : "text-gray-300 hover:text-white hover:bg-white/5"
               }`}
             >
