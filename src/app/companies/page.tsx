@@ -1,119 +1,95 @@
-"use client";
-import { useState } from "react";
-import { companies } from "@/lib/mock-data";
-import { Search, Plus, Building2, Globe, Users, Handshake } from "lucide-react";
+'use client';
 
-const typeColors: Record<string, string> = {
-  customer: "bg-green-100 text-green-700",
-  prospect: "bg-blue-100 text-blue-700",
-  partner: "bg-purple-100 text-purple-700",
-  vendor: "bg-yellow-100 text-yellow-700",
+import { useState } from 'react';
+import { useApi } from '@/lib/hooks/useApi';
+import { Company } from '@/lib/types';
+import { Search, Plus, Building2, Globe, Loader, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const typeBadge: Record<string, string> = {
+  prospect: 'bg-blue-100 text-blue-700', customer: 'bg-green-100 text-green-700', partner: 'bg-purple-100 text-purple-700',
+  vendor: 'bg-yellow-100 text-yellow-700', competitor: 'bg-red-100 text-red-700',
 };
 
-function fmt(n: number) {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n}`;
-}
+function fmt(n: number) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
 
 export default function CompaniesPage() {
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [view, setView] = useState<"grid" | "table">("grid");
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState({ name: '', domain: '', industry: '', type: 'prospect', phone: '' });
 
-  const filtered = companies.filter((c) => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || `${c.name} ${c.domain} ${c.industry}`.toLowerCase().includes(q);
-    const matchType = typeFilter === "all" || c.type === typeFilter;
-    return matchSearch && matchType;
-  });
+  const { data: companies, loading, error, total, create } = useApi<Company>('/api/companies', { page, limit: 25, search });
+
+  const handleCreate = async () => {
+    try { await create(form); setShowCreate(false); setForm({ name: '', domain: '', industry: '', type: 'prospect', phone: '' }); }
+    catch (e) { alert(e instanceof Error ? e.message : 'Error'); }
+  };
+
+  const totalPages = Math.ceil(total / 25) || 1;
 
   return (
     <div className="p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#0B1F3A]">Companies</h1>
-          <p className="text-sm text-[#9CA3AF]">{filtered.length} companies</p>
-        </div>
-        <button className="btn-primary"><Plus size={16} /> Add company</button>
+        <div><h1 className="text-2xl font-bold text-[#0B1F3A]">Companies</h1><p className="text-sm text-[#9CA3AF]">{total} total</p></div>
+        <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2"><Plus size={16} /> Add Company</button>
       </div>
-
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center bg-white rounded-lg border border-[#E5E7EB] px-3 py-2 flex-1 max-w-md">
-          <Search size={16} className="text-[#9CA3AF] mr-2" />
-          <input type="text" placeholder="Search companies..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-sm outline-none w-full text-[#0B1F3A] placeholder-[#9CA3AF]" />
-        </div>
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}
-          className="text-sm border border-[#E5E7EB] rounded-lg px-3 py-2 bg-white text-[#0B1F3A] outline-none">
-          <option value="all">All types</option>
-          <option value="customer">Customer</option>
-          <option value="prospect">Prospect</option>
-          <option value="partner">Partner</option>
-          <option value="vendor">Vendor</option>
-        </select>
-        <div className="flex items-center border border-[#E5E7EB] rounded-lg overflow-hidden">
-          <button onClick={() => setView("grid")} className={`px-3 py-2 text-sm ${view === "grid" ? "bg-[#0B1F3A] text-white" : "bg-white text-[#0B1F3A]"}`}>Grid</button>
-          <button onClick={() => setView("table")} className={`px-3 py-2 text-sm ${view === "table" ? "bg-[#0B1F3A] text-white" : "bg-white text-[#0B1F3A]"}`}>Table</button>
-        </div>
+      <div className="relative max-w-md">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input type="text" placeholder="Search companies..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+          className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#F0A500]/30 focus:border-[#F0A500] outline-none" />
       </div>
-
-      {view === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((c) => (
-            <div key={c.id} className="card cursor-pointer hover:border-[#F0A500]/50">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#0B1F3A] flex items-center justify-center">
-                    <Building2 size={18} className="text-[#F0A500]" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-[#0B1F3A]">{c.name}</h3>
-                    <p className="text-xs text-[#9CA3AF] flex items-center gap-1"><Globe size={10} /> {c.domain}</p>
-                  </div>
-                </div>
-                <span className={`badge text-xs ${typeColors[c.type] || "bg-gray-100 text-gray-700"}`}>{c.type}</span>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-[#9CA3AF]">Industry</span><span className="text-[#0B1F3A] font-medium">{c.industry}</span></div>
-                <div className="flex justify-between"><span className="text-[#9CA3AF]">Revenue</span><span className="text-[#0B1F3A] font-medium">{fmt(c.annual_revenue)}</span></div>
-                <div className="flex justify-between"><span className="text-[#9CA3AF]">Size</span><span className="text-[#0B1F3A] font-medium">{c.company_size}</span></div>
-                <div className="flex justify-between"><span className="text-[#9CA3AF]">Location</span><span className="text-[#0B1F3A] font-medium">{c.city}, {c.state}</span></div>
-              </div>
-              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-1.5 text-xs text-[#9CA3AF]"><Users size={12} /> {c.contacts_count} contacts</div>
-                <div className="flex items-center gap-1.5 text-xs text-[#9CA3AF]"><Handshake size={12} /> {c.deals_count} deals</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#E5E7EB] bg-gray-50/50">
-                  {["Company", "Industry", "Type", "Revenue", "Size", "Location", "Contacts", "Deals", "Owner"].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">{h}</th>
-                  ))}
+      <div className="card overflow-hidden p-0">
+        {loading ? <div className="flex items-center justify-center py-20"><Loader className="animate-spin text-gray-400" size={32} /></div>
+        : error ? <div className="text-red-500 text-sm p-6">{error}</div>
+        : companies.length === 0 ? (
+          <div className="text-center py-20 text-gray-400"><Building2 size={48} className="mx-auto mb-3 opacity-40" /><p className="font-medium">No companies found</p></div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead><tr className="bg-gray-50 text-left text-[#9CA3AF] text-xs uppercase tracking-wider">
+              <th className="px-4 py-3 font-medium">Name</th><th className="px-4 py-3 font-medium">Industry</th><th className="px-4 py-3 font-medium">Type</th>
+              <th className="px-4 py-3 font-medium">Revenue</th><th className="px-4 py-3 font-medium">Location</th><th className="px-4 py-3 font-medium">Website</th>
+            </tr></thead>
+            <tbody className="divide-y divide-gray-100">
+              {companies.map(c => (
+                <tr key={c.id} className="hover:bg-gray-50 transition-colors cursor-pointer">
+                  <td className="px-4 py-3 font-medium text-[#0B1F3A]">{c.name}</td>
+                  <td className="px-4 py-3 text-[#6B7280]">{c.industry || '—'}</td>
+                  <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${typeBadge[c.type] || 'bg-gray-100 text-gray-700'}`}>{c.type}</span></td>
+                  <td className="px-4 py-3 text-[#6B7280]">{c.annual_revenue ? fmt(c.annual_revenue) : '—'}</td>
+                  <td className="px-4 py-3 text-[#6B7280]">{[c.city, c.state].filter(Boolean).join(', ') || '—'}</td>
+                  <td className="px-4 py-3">{c.domain ? <span className="text-blue-600 flex items-center gap-1"><Globe size={12} />{c.domain}</span> : '—'}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {filtered.map((c) => (
-                  <tr key={c.id} className="table-row border-b border-gray-50 cursor-pointer">
-                    <td className="px-4 py-3"><div className="flex items-center gap-2"><div className="w-8 h-8 rounded bg-[#0B1F3A] flex items-center justify-center"><Building2 size={14} className="text-[#F0A500]" /></div><div><p className="font-medium text-[#0B1F3A]">{c.name}</p><p className="text-xs text-[#9CA3AF]">{c.domain}</p></div></div></td>
-                    <td className="px-4 py-3 text-[#0B1F3A]">{c.industry}</td>
-                    <td className="px-4 py-3"><span className={`badge text-xs ${typeColors[c.type] || "bg-gray-100 text-gray-700"}`}>{c.type}</span></td>
-                    <td className="px-4 py-3 text-[#0B1F3A] font-medium">{fmt(c.annual_revenue)}</td>
-                    <td className="px-4 py-3 text-[#0B1F3A]">{c.company_size}</td>
-                    <td className="px-4 py-3 text-[#0B1F3A] whitespace-nowrap">{c.city}, {c.state}</td>
-                    <td className="px-4 py-3 text-center text-[#0B1F3A]">{c.contacts_count}</td>
-                    <td className="px-4 py-3 text-center text-[#0B1F3A]">{c.deals_count}</td>
-                    <td className="px-4 py-3 text-[#0B1F3A]">{c.owner}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-[#9CA3AF]">Page {page} of {totalPages}</span>
+          <div className="flex gap-2">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1.5 border rounded-lg disabled:opacity-40"><ChevronLeft size={16} /></button>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="px-3 py-1.5 border rounded-lg disabled:opacity-40"><ChevronRight size={16} /></button>
+          </div>
+        </div>
+      )}
+      {showCreate && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setShowCreate(false)}>
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-[#0B1F3A] mb-4">New Company</h2>
+            <div className="space-y-3">
+              <input placeholder="Company Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <input placeholder="Domain (e.g. acme.com)" value={form.domain} onChange={e => setForm({...form, domain: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <input placeholder="Industry" value={form.industry} onChange={e => setForm({...form, industry: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <input placeholder="Phone" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm">
+                {['prospect','customer','partner','vendor','competitor','other'].map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+              </select>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setShowCreate(false)} className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Cancel</button>
+              <button onClick={handleCreate} className="btn-primary text-sm">Create</button>
+            </div>
           </div>
         </div>
       )}

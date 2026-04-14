@@ -1,132 +1,97 @@
-"use client";
-import { dashboardMetrics } from "@/lib/mock-data";
-import {
-  BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  type PieLabelRenderProps
-} from "recharts";
+'use client';
 
-function fmt(n: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
-}
+import { useApi } from '@/lib/hooks/useApi';
+import { Deal, Contact, Task, Ticket } from '@/lib/types';
+import { BarChart3, Users, DollarSign, TrendingUp, Loader } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const COLORS = ["#0B1F3A", "#F0A500", "#007A67", "#7C5CBF", "#3B82F6", "#EF4444"];
+function fmt(n: number) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
+const COLORS = ['#0B1F3A', '#F0A500', '#007A67', '#7C5CBF', '#3B82F6', '#EF4444', '#10B981'];
 
 export default function ReportsPage() {
+  const { data: contacts, loading: cL } = useApi<Contact>('/api/contacts', { limit: 500 });
+  const { data: deals, loading: dL } = useApi<Deal>('/api/deals', { limit: 500 });
+  const { data: tasks, loading: tL } = useApi<Task>('/api/tasks', { limit: 500 });
+  const { data: tickets, loading: tkL } = useApi<Ticket>('/api/tickets', { limit: 500 });
+
+  const loading = cL || dL || tL || tkL;
+
+  // Deal type breakdown
+  const dealTypes: Record<string, number> = {};
+  deals.forEach(d => { const t = d.deal_type || 'other'; dealTypes[t] = (dealTypes[t] || 0) + (Number(d.amount) || 0); });
+  const dealTypeData = Object.entries(dealTypes).map(([name, value]) => ({ name, value }));
+
+  // Stage breakdown
+  const stageMap: Record<string, number> = {};
+  deals.filter(d => !d.is_won && !d.is_lost).forEach(d => { const s = d.stage_name || 'Unknown'; stageMap[s] = (stageMap[s] || 0) + 1; });
+  const stageData = Object.entries(stageMap).map(([stage, count]) => ({ stage, count }));
+
+  // Lifecycle stages
+  const lcMap: Record<string, number> = {};
+  contacts.forEach(c => { const s = c.lifecycle_stage || 'lead'; lcMap[s] = (lcMap[s] || 0) + 1; });
+  const lifecycleData = Object.entries(lcMap).map(([name, value]) => ({ name, value }));
+
+  const wonRevenue = deals.filter(d => d.is_won).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  const pipelineValue = deals.filter(d => !d.is_won && !d.is_lost).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+
   return (
     <div className="p-6 max-w-[1400px] mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#0B1F3A]">Reports</h1>
-        <p className="text-sm text-[#9CA3AF]">Sales analytics and performance metrics</p>
-      </div>
-
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card text-center">
-          <p className="text-sm text-[#9CA3AF]">Total Revenue</p>
-          <p className="text-3xl font-bold text-[#0B1F3A] mt-1">{fmt(dashboardMetrics.total_revenue)}</p>
-          <p className="text-sm text-green-600 font-medium mt-1">+{dashboardMetrics.revenue_change}%</p>
-        </div>
-        <div className="card text-center">
-          <p className="text-sm text-[#9CA3AF]">Avg Deal Size</p>
-          <p className="text-3xl font-bold text-[#0B1F3A] mt-1">{fmt(dashboardMetrics.avg_deal_size)}</p>
-          <p className={`text-sm font-medium mt-1 ${dashboardMetrics.avg_deal_change >= 0 ? "text-green-600" : "text-red-500"}`}>{dashboardMetrics.avg_deal_change}%</p>
-        </div>
-        <div className="card text-center">
-          <p className="text-sm text-[#9CA3AF]">Pipeline Deals</p>
-          <p className="text-3xl font-bold text-[#0B1F3A] mt-1">{dashboardMetrics.deals_in_pipeline}</p>
-          <p className="text-sm text-green-600 font-medium mt-1">+{dashboardMetrics.pipeline_change}%</p>
-        </div>
-        <div className="card text-center">
-          <p className="text-sm text-[#9CA3AF]">Win Rate</p>
-          <p className="text-3xl font-bold text-[#0B1F3A] mt-1">{dashboardMetrics.conversion_rate}%</p>
-          <p className="text-sm text-green-600 font-medium mt-1">+{dashboardMetrics.conversion_change}%</p>
-        </div>
-      </div>
-
-      {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Revenue Trend */}
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Monthly Revenue</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={dashboardMetrics.monthly_revenue}>
-              <defs>
-                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#F0A500" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#F0A500" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="month" tick={{ fill: "#6B7280", fontSize: 12 }} />
-              <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} tickFormatter={(v) => `$${v / 1000}k`} />
-              <Tooltip formatter={(v) => fmt(Number(v))} />
-              <Area type="monotone" dataKey="revenue" stroke="#F0A500" strokeWidth={2} fill="url(#colorRev)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Lead Sources */}
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Lead Sources</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie data={dashboardMetrics.lead_sources} dataKey="count" nameKey="source" cx="50%" cy="50%" outerRadius={100} label={(props: PieLabelRenderProps) => `${props.name || ''} ${((Number(props.percent) || 0) * 100).toFixed(0)}%`}>
-                {dashboardMetrics.lead_sources.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Pipeline by Stage */}
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Pipeline by Stage</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dashboardMetrics.deals_by_stage}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <XAxis dataKey="stage" tick={{ fill: "#6B7280", fontSize: 11 }} />
-              <YAxis tick={{ fill: "#6B7280", fontSize: 12 }} tickFormatter={(v) => `$${v / 1000}k`} />
-              <Tooltip formatter={(v) => fmt(Number(v))} />
-              <Legend />
-              <Bar dataKey="value" name="Value" fill="#0B1F3A" radius={[4, 4, 0, 0]} barSize={32} />
-              <Bar dataKey="count" name="Count" fill="#F0A500" radius={[4, 4, 0, 0]} barSize={32} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Team Leaderboard */}
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Team Leaderboard</h3>
-          <div className="space-y-4">
-            {dashboardMetrics.team_performance
-              .sort((a, b) => b.revenue - a.revenue)
-              .map((rep, i) => (
-                <div key={rep.rep} className="flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${i === 0 ? "bg-[#F0A500]" : "bg-[#0B1F3A]"}`}>
-                    {i + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium text-[#0B1F3A]">{rep.rep}</span>
-                      <span className="font-bold text-[#0B1F3A]">{fmt(rep.revenue)}</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="h-2 rounded-full" style={{ width: `${rep.quota_pct}%`, background: rep.quota_pct >= 100 ? "#22C55E" : rep.quota_pct >= 70 ? "#F0A500" : "#EF4444" }} />
-                    </div>
-                    <div className="flex justify-between mt-1 text-xs text-[#9CA3AF]">
-                      <span>{rep.deals_closed} deals closed</span>
-                      <span>{rep.quota_pct}% of quota</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+      <h1 className="text-2xl font-bold text-[#0B1F3A]">Reports & Analytics</h1>
+      {loading ? <div className="flex items-center justify-center py-20"><Loader className="animate-spin text-gray-400" size={32} /></div> : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="card"><p className="text-sm text-[#9CA3AF]">Total Contacts</p><p className="text-2xl font-bold text-[#0B1F3A]">{contacts.length}</p></div>
+            <div className="card"><p className="text-sm text-[#9CA3AF]">Pipeline Value</p><p className="text-2xl font-bold text-[#F0A500]">{fmt(pipelineValue)}</p></div>
+            <div className="card"><p className="text-sm text-[#9CA3AF]">Won Revenue</p><p className="text-2xl font-bold text-green-600">{fmt(wonRevenue)}</p></div>
+            <div className="card"><p className="text-sm text-[#9CA3AF]">Open Tickets</p><p className="text-2xl font-bold text-[#0B1F3A]">{tickets.filter(t => t.status === 'open').length}</p></div>
           </div>
-        </div>
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="card">
+              <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Deals by Stage</h3>
+              {stageData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={stageData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="stage" tick={{ fontSize: 11 }} /><YAxis /><Tooltip /><Bar dataKey="count" fill="#0B1F3A" radius={[4,4,0,0]} /></BarChart>
+                </ResponsiveContainer>
+              ) : <p className="text-gray-400 text-sm text-center py-10">No deal data yet</p>}
+            </div>
+            <div className="card">
+              <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Revenue by Deal Type</h3>
+              {dealTypeData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart><Pie data={dealTypeData} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}>
+                    {dealTypeData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie><Tooltip formatter={(v) => fmt(Number(v))} /></PieChart>
+                </ResponsiveContainer>
+              ) : <p className="text-gray-400 text-sm text-center py-10">No revenue data yet</p>}
+            </div>
+            <div className="card">
+              <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Contact Lifecycle</h3>
+              {lifecycleData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart><Pie data={lifecycleData} cx="50%" cy="50%" outerRadius={90} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
+                    {lifecycleData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  </Pie><Tooltip /></PieChart>
+                </ResponsiveContainer>
+              ) : <p className="text-gray-400 text-sm text-center py-10">No contact data yet</p>}
+            </div>
+            <div className="card">
+              <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Task Summary</h3>
+              <div className="space-y-3">
+                {['pending', 'in_progress', 'completed', 'cancelled'].map(s => {
+                  const count = tasks.filter(t => t.status === s).length;
+                  const pct = tasks.length > 0 ? (count / tasks.length) * 100 : 0;
+                  return (
+                    <div key={s}>
+                      <div className="flex justify-between text-sm mb-1"><span className="text-[#6B7280]">{s.replace('_', ' ')}</span><span className="font-medium">{count}</span></div>
+                      <div className="w-full bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full bg-[#0B1F3A]" style={{ width: `${pct}%` }} /></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
