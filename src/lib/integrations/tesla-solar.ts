@@ -72,7 +72,7 @@ interface Result<T> { success: boolean; data?: T; error?: string; }
 export class TeslaSolarAPI {
   private auroraToken: string;
   private tenantId: string;
-  private baseUrl = 'https://api-v2.aurorasolar.com';
+  private baseUrl = process.env.AURORA_SOLAR_API_URL || 'https://api.aurorasolar.com';
 
   constructor(auroraToken?: string, tenantId?: string) {
     this.auroraToken = auroraToken || process.env.AURORA_SOLAR_API_KEY || '';

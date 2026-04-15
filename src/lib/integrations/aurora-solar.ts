@@ -144,7 +144,7 @@ type PaginatedResult<T> = Result<T[]> & { total?: number; next_cursor?: string; 
 export class AuroraSolarAPI {
   private bearerToken: string;
   private tenantId: string;
-  private baseUrl = 'https://api-v2.aurorasolar.com';
+  private baseUrl = process.env.AURORA_SOLAR_API_URL || 'https://api.aurorasolar.com';
 
   constructor(bearerToken?: string, tenantId?: string) {
     this.bearerToken = bearerToken || process.env.AURORA_SOLAR_API_KEY || '';
