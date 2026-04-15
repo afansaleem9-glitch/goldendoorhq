@@ -8,6 +8,7 @@ export * from './nrel';
 export * from './enphase';
 export * from './solaredge';
 export * from './aurora-solar';
+export * from './tesla-solar';
 export * from './quickbooks';
 export * from './stripe-billing';
 export * from './eagleview';
@@ -22,7 +23,7 @@ export const INTEGRATION_PROVIDERS = {
   solaredge: { name: 'SolarEdge', category: 'solar', module: 'solaredge' },
   aurora: { name: 'Aurora Solar', category: 'solar', module: 'aurora-solar' },
   eagleview: { name: 'EagleView', category: 'solar', module: 'eagleview' },
-  tesla: { name: 'Tesla Powerwall', category: 'solar', module: null },
+  tesla: { name: 'Tesla SolarDesigner', category: 'solar', module: 'tesla-solar' },
   opensolar: { name: 'OpenSolar', category: 'solar', module: null },
 
   // Financial
