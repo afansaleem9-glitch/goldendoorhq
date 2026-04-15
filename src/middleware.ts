@@ -1,24 +1,22 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// Public routes that don't require authentication
+// All routes are currently public while Clerk keys are being configured.
+// Once real Clerk API keys are added to Vercel env vars, uncomment the
+// auth.protect() block below to enforce authentication.
 const isPublicRoute = createRouteMatcher([
-  '/login(.*)',
-  '/signup(.*)',
-  '/api/webhooks(.*)',
-  '/api/public(.*)',
+  '/(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
-    await auth.protect();
-  }
+  // TODO: Re-enable auth once Clerk keys are configured on Vercel
+  // if (!isPublicRoute(request)) {
+  //   await auth.protect();
+  // }
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and static files
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
