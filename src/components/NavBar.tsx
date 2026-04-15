@@ -269,6 +269,17 @@ export function NavBar() {
               <span className="text-black text-[11px] font-bold">AS</span>
             </div>
           </button>
+          <Link
+            href="/documents"
+            className={`flex items-center gap-1.5 px-2 py-1.5 rounded text-[12px] font-medium transition-all ${
+              isActive("/documents") ? "text-white bg-white/15" : "text-white/60 hover:text-white hover:bg-white/8"
+            }`}
+            aria-current={isActive("/documents") ? "page" : undefined}
+            title="Documents"
+          >
+            <FileText size={14} />
+            <span className="hidden xl:inline">Documents</span>
+          </Link>
           <form action="/api/auth/signout" method="POST">
             <button
               type="submit"
