@@ -5,6 +5,7 @@ export const PUBLIC_API_PATHS = [
   '/api/aurora/webhooks',
   '/api/sync',
   '/api/webhooks',
+  '/api/documents/pandadoc-webhook',
 ] as const;
 
 export function isPublicApiPath(pathname: string): boolean {
