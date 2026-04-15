@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { ALLOWED_EMAIL, isPublicApiPath } from '@/lib/auth-config';
+import { ALLOWED_EMAIL, isPublicApiPath, isValidBearer } from '@/lib/auth-config';
 
 const PUBLIC_PAGE_PATHS = ['/signin'];
 
@@ -13,6 +13,10 @@ export async function proxy(request: NextRequest) {
   const isApi = pathname.startsWith('/api/');
 
   if (isApi && isPublicApiPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (isApi && isValidBearer(request.headers.get('authorization'))) {
     return NextResponse.next();
   }
 
