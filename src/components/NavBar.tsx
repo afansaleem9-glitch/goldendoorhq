@@ -10,7 +10,8 @@ import {
   HelpCircle, Dna, ChevronDown, Calculator, FileSpreadsheet,
   UserCheck, Plug, Phone, GitBranch, Zap, FileText,
   TrendingUp, BookOpen, SlidersHorizontal, ShoppingCart, X,
-  Shield, Home, Wifi, Target, PenTool, Headphones, Globe
+  Shield, Home, Wifi, Target, PenTool, Headphones, Globe,
+  Database, RefreshCw, LinkIcon, Radio, MapPin, Wrench, Monitor, Package, ClipboardCheck
 } from "lucide-react";
 
 const primaryNav = [
@@ -27,32 +28,72 @@ const primaryNav = [
 ];
 
 const solarSubNav = [
-  { href: "/solar/dashboard", label: "Solar Dashboard" },
-  { href: "/solar/leads", label: "Solar Leads" },
-  { href: "/solar/commissions", label: "Commissions" },
-  { href: "/solar/scoreboard", label: "Scoreboard" },
-  { href: "/solar/work-queue", label: "Work Queue" },
-  { href: "/solar/contracts/generate", label: "Generate Contract" },
+  { href: "/solar", label: "Command Center" },
+  { href: "/solar/proposals", label: "Proposals" },
+  { href: "/solar/system-design", label: "System Design" },
+  { href: "/solar/financing", label: "Financing" },
+  { href: "/solar/utility-rates", label: "Utility Rates" },
+  { href: "/solar/interconnection", label: "Interconnection" },
+  { href: "/solar/production-monitoring", label: "Production Monitoring" },
+  { href: "/solar/battery-storage", label: "Battery Storage" },
+  { href: "/solar/incentives", label: "Incentives" },
+  { href: "/solar/installer-portal", label: "Installer Portal" },
+  { href: "/solar/customer-portal", label: "Customer Portal" },
+  { href: "/solar/inventory", label: "Inventory" },
+  { href: "/solar/permits", label: "Permits" },
 ];
 
 const securitySubNav = [
-  { href: "/security/dashboard", label: "Security Dashboard" },
-  { href: "/security/leads", label: "Security Leads" },
-  { href: "/security/monitoring", label: "Monitoring" },
-  { href: "/security/equipment", label: "Equipment" },
+  { href: "/security", label: "Command Center" },
+  { href: "/security/system-designer", label: "System Designer" },
+  { href: "/security/monitoring-contracts", label: "Monitoring Contracts" },
+  { href: "/security/video-verification", label: "Video Verification" },
+  { href: "/security/competitor-takeover", label: "Competitor Takeover" },
+  { href: "/security/customer-portal", label: "Customer Portal" },
+  { href: "/security/alarm-com", label: "Alarm.com" },
+  { href: "/security/site-surveys", label: "Site Surveys" },
+  { href: "/security/activation-tracker", label: "Activation Tracker" },
+  { href: "/security/warranty-claims", label: "Warranty Claims" },
+  { href: "/security/recurring-revenue", label: "Recurring Revenue" },
 ];
 
 const roofingSubNav = [
-  { href: "/roofing/dashboard", label: "Roofing Dashboard" },
-  { href: "/roofing/leads", label: "Roofing Leads" },
-  { href: "/roofing/projects", label: "Projects" },
-  { href: "/roofing/inspections", label: "Inspections" },
+  { href: "/roofing", label: "Command Center" },
+  { href: "/roofing/leads", label: "Leads & CRM" },
+  { href: "/roofing/estimates", label: "Estimates" },
+  { href: "/roofing/production", label: "Production" },
+  { href: "/roofing/insurance-claims", label: "Insurance Claims" },
+  { href: "/roofing/scheduling", label: "Scheduling" },
+  { href: "/roofing/job-costing", label: "Job Costing" },
+  { href: "/roofing/aerial-measurements", label: "Aerial Measurements" },
+  { href: "/roofing/material-ordering", label: "Material Ordering" },
+  { href: "/roofing/smart-docs", label: "SmartDocs" },
+  { href: "/roofing/photos", label: "Photos & Media" },
+  { href: "/roofing/customer-portal", label: "Customer Portal" },
+  { href: "/roofing/text-messaging", label: "Text Messaging" },
+  { href: "/roofing/crew-app", label: "Crew App" },
+  { href: "/roofing/accupay", label: "AccuPay Payments" },
+  { href: "/roofing/reports-plus", label: "ReportsPlus" },
+  { href: "/roofing/datamart", label: "DataMart" },
+  { href: "/roofing/commissions", label: "Commissions" },
+  { href: "/roofing/financing", label: "Financing" },
+  { href: "/roofing/permits", label: "Permits" },
+  { href: "/roofing/weather-alerts", label: "Weather Alerts" },
+  { href: "/roofing/integrations", label: "Integrations" },
 ];
 
 const attSubNav = [
-  { href: "/att/dashboard", label: "AT&T Dashboard" },
-  { href: "/att/leads", label: "AT&T Leads" },
-  { href: "/att/accounts", label: "Accounts" },
+  { href: "/att", label: "Command Center" },
+  { href: "/att/orders", label: "Orders" },
+  { href: "/att/commissions", label: "Commissions" },
+  { href: "/att/territories", label: "Territories" },
+  { href: "/att/activations", label: "Activations" },
+  { href: "/att/availability", label: "Availability" },
+  { href: "/att/quality", label: "Quality" },
+  { href: "/att/compliance", label: "Compliance" },
+  { href: "/att/retention", label: "Retention" },
+  { href: "/att/training", label: "Training" },
+  { href: "/att/reporting", label: "Reporting" },
 ];
 
 const hubsNav = [
@@ -71,6 +112,15 @@ const hubsNav = [
   { href: "/content-hub/blog", label: "Blog", icon: PenTool },
   { href: "/content-hub/landing-pages", label: "Landing Pages", icon: Globe },
   { href: "/content-hub/seo", label: "SEO", icon: TrendingUp },
+  { href: "/data-hub", label: "Data Hub", icon: Database },
+  { href: "/data-hub/data-sync", label: "Data Sync", icon: RefreshCw },
+  { href: "/data-hub/data-quality", label: "Data Quality", icon: Shield },
+  { href: "/data-hub/automation", label: "Programmable Automation", icon: Zap },
+  { href: "/commerce-hub", label: "Commerce Hub", icon: ShoppingCart },
+  { href: "/commerce-hub/invoices", label: "Invoices", icon: FileText },
+  { href: "/commerce-hub/payment-links", label: "Payment Links", icon: LinkIcon },
+  { href: "/commerce-hub/subscriptions", label: "Subscriptions", icon: RefreshCw },
+  { href: "/commerce-hub/quotes", label: "Quotes / CPQ", icon: Calculator },
 ];
 
 const secondaryNav = [
