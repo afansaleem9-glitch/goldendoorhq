@@ -13,6 +13,7 @@ export * from './quickbooks';
 export * from './stripe-billing';
 export * from './eagleview';
 export * from './twilio-comms';
+export * from './abc-supply';
 
 // Provider registry for dynamic integration lookup
 export const INTEGRATION_PROVIDERS = {
@@ -61,6 +62,9 @@ export const INTEGRATION_PROVIDERS = {
   google_maps: { name: 'Google Maps', category: 'data', module: 'google-solar' },
   apollo: { name: 'Apollo', category: 'data', module: null },
   common_room: { name: 'Common Room', category: 'data', module: null },
+
+  // Suppliers
+  abc_supply: { name: 'ABC Supply', category: 'supplier', module: 'abc-supply' },
 } as const;
 
 export type IntegrationProvider = keyof typeof INTEGRATION_PROVIDERS;

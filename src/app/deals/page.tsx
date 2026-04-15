@@ -9,18 +9,19 @@ import {
   Filter, Download, Zap, Home, Shield, Eye
 } from 'lucide-react';
 import { supabase, ORG_ID } from '@/lib/supabase';
+import CreateAuroraProjectButton from '@/components/CreateAuroraProjectButton';
 
 function fmt(n: number) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
 
 interface Deal {
   id: string; deal_name: string; contact_name: string; amount: number;
-  stage_id: string; stage_name: string; deal_type: string; priority: string;
+  stage_id: string; stage_name: string; deal_type: string; pipeline_id: string; priority: string;
   owner_name: string; close_date: string; phone: string; email: string;
   source: string; probability: number; created_at: string;
 }
 
 interface DealStage {
-  id: string; name: string; display_order: number; pipeline_id: string;
+  id: string; name: string; position: number; pipeline_id: string;
 }
 
 export default function DealsPage() {
@@ -56,7 +57,7 @@ export default function DealsPage() {
         .from('deal_stages')
         .select('*')
         .eq('organization_id', ORG_ID)
-        .order('display_order', { ascending: true });
+        .order('position', { ascending: true });
 
       const stgs = stageData || [];
       setStages(stgs);
@@ -66,7 +67,7 @@ export default function DealsPage() {
       const { data: dealData } = await supabase
         .from('deals')
         .select(`
-          id, deal_name, amount, deal_type, priority, close_date,
+          id, name, amount, deal_type, pipeline_id, priority, close_date,
           source, probability, stage_id, created_at,
           contacts ( first_name, last_name, email, phone )
         `)
@@ -80,12 +81,13 @@ export default function DealsPage() {
           const stageName = stgs.find((s: DealStage) => s.id === d.stage_id)?.name || 'Unknown';
           return {
             id: d.id,
-            deal_name: d.deal_name,
+            deal_name: d.name,
             contact_name: c ? `${c.first_name} ${c.last_name}` : 'Unknown',
             amount: d.amount || 0,
             stage_id: d.stage_id,
             stage_name: stageName,
             deal_type: d.deal_type || 'solar',
+            pipeline_id: d.pipeline_id || 'solar',
             priority: d.priority || 'medium',
             owner_name: 'Delta Team',
             close_date: d.close_date || '',
@@ -112,7 +114,8 @@ export default function DealsPage() {
     try {
       const { error } = await supabase.from('deals').insert([{
         organization_id: ORG_ID,
-        deal_name: formName,
+        name: formName,
+        pipeline_id: formType,
         amount: parseFloat(formAmount),
         deal_type: formType,
         priority: formPriority,
@@ -377,6 +380,7 @@ export default function DealsPage() {
             <div className="p-4 border-b border-gray-200/60 flex items-center gap-2">
               {selected.phone && <a href={`tel:${selected.phone}`} className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold text-white bg-black rounded-lg"><Phone size={12} /> Call</a>}
               {selected.email && <a href={`mailto:${selected.email}`} className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg"><Mail size={12} /> Email</a>}
+              {selected.pipeline_id === 'solar' && <CreateAuroraProjectButton dealId={selected.id} size="sm" />}
             </div>
             <div className="p-4 border-b border-gray-200/60">
               <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-3">Deal Stage</p>

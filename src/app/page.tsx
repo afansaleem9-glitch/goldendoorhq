@@ -44,6 +44,7 @@ interface RecentCall {
   call_type: string;
   duration_seconds: number;
   created_at: string;
+  customers?: { first_name: string; last_name: string } | null;
 }
 
 export default function DashboardPage() {
@@ -60,10 +61,10 @@ export default function DashboardPage() {
     try {
       // Fetch all data in parallel
       const [dealsRes, contactsRes, stagesRes, callsRes] = await Promise.all([
-        supabase.from('deals').select('id, deal_name, amount, stage_id, deal_type, created_at, probability, contacts ( first_name, last_name )').eq('organization_id', ORG_ID).is('deleted_at', null).order('created_at', { ascending: false }),
+        supabase.from('deals').select('id, name, amount, stage_id, deal_type, pipeline_id, created_at, probability, contacts ( first_name, last_name )').eq('organization_id', ORG_ID).is('deleted_at', null).order('created_at', { ascending: false }),
         supabase.from('contacts').select('id').eq('organization_id', ORG_ID).is('deleted_at', null),
-        supabase.from('deal_stages').select('*').eq('organization_id', ORG_ID).order('display_order', { ascending: true }),
-        supabase.from('call_log').select('id, customer_name, phone_number, call_type, duration_seconds, created_at').eq('organization_id', ORG_ID).order('created_at', { ascending: false }).limit(10),
+        supabase.from('deal_stages').select('*').eq('organization_id', ORG_ID).order('position', { ascending: true }),
+        supabase.from('call_log').select('id, customer_id, phone_number, call_type, duration_seconds, created_at, customers ( first_name, last_name )').eq('organization_id', ORG_ID).order('created_at', { ascending: false }).limit(10),
       ]);
 
       const deals = dealsRes.data || [];
@@ -72,8 +73,8 @@ export default function DashboardPage() {
       const calls = callsRes.data || [];
 
       // Calculate stats
-      const wonStages = stages.filter((s: any) => s.name?.toLowerCase().includes('won'));
-      const lostStages = stages.filter((s: any) => s.name?.toLowerCase().includes('lost'));
+      const wonStages = stages.filter((s: any) => s.is_won === true);
+      const lostStages = stages.filter((s: any) => s.is_lost === true);
       const wonIds = new Set(wonStages.map((s: any) => s.id));
       const lostIds = new Set(lostStages.map((s: any) => s.id));
 
@@ -118,7 +119,7 @@ export default function DashboardPage() {
         const stageName = stages.find((s: any) => s.id === d.stage_id)?.name || 'Unknown';
         return {
           id: d.id,
-          deal_name: d.deal_name,
+          deal_name: d.name,
           amount: d.amount || 0,
           stage_name: stageName,
           deal_type: d.deal_type || 'solar',
@@ -127,7 +128,10 @@ export default function DashboardPage() {
         };
       });
       setRecentDeals(recentDealData);
-      setRecentCalls(calls.slice(0, 6));
+      setRecentCalls(calls.slice(0, 6).map((c: any) => ({
+        ...c,
+        customer_name: c.customers ? `${c.customers.first_name} ${c.customers.last_name}` : c.phone_number,
+      })));
     } catch (err) {
       console.error('Dashboard fetch error:', err);
     } finally {
