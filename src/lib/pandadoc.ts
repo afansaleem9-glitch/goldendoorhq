@@ -92,6 +92,41 @@ export async function sendDocument(id: string, message?: string) {
   });
 }
 
+export type PandaDocDocumentDetails = Omit<PandaDocDocument, 'recipients'> & {
+  date_created?: string;
+  date_modified?: string;
+  date_completed?: string | null;
+  expiration_date?: string | null;
+  version?: string;
+  uuid?: string;
+  sent_by?: { email?: string; first_name?: string; last_name?: string } | null;
+  created_by?: { email?: string; first_name?: string; last_name?: string } | null;
+  template?: { id?: string; name?: string } | null;
+  recipients?: Array<{
+    id?: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    role?: string;
+    signing_order?: number | null;
+    has_completed?: boolean;
+    recipient_type?: string;
+  }>;
+  grand_total?: { amount?: string; currency?: string } | null;
+  tokens?: Array<{ name: string; value?: string }>;
+};
+
+export async function getDocumentDetails(id: string) {
+  return pandaFetch<PandaDocDocumentDetails>(`/documents/${id}/details`, { method: 'GET' });
+}
+
+export async function downloadDocumentResponse(id: string): Promise<Response> {
+  return fetch(`${PANDADOC_BASE}/documents/${id}/download`, {
+    method: 'GET',
+    headers: { Authorization: `API-Key ${apiKey()}` },
+  });
+}
+
 export async function getTemplateDetails(id: string) {
   return pandaFetch<{ id: string; name: string; tokens?: Array<{ name: string }>; fields?: Array<{ name: string }> }>(
     `/templates/${id}/details`,

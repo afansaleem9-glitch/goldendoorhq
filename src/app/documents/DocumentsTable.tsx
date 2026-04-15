@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { ExternalLink, RefreshCw, FileText } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, RefreshCw, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export type DocumentRow = {
@@ -163,7 +164,7 @@ export function DocumentsTable({ rows, loadError }: { rows: DocumentRow[]; loadE
                   <Th>Status</Th>
                   <Th>Sent At</Th>
                   <Th>Signed At</Th>
-                  <Th align="right">PandaDoc</Th>
+                  <Th align="right">Details</Th>
                 </tr>
               </thead>
               <tbody>
@@ -189,24 +190,18 @@ export function DocumentsTable({ rows, loadError }: { rows: DocumentRow[]; loadE
                       <Td muted>{formatDate(r.created_at)}</Td>
                       <Td muted>{formatDate(r.signed_at)}</Td>
                       <Td align="right">
-                        {r.signature_request_id ? (
-                          <a
-                            href={`https://app.pandadoc.com/a/#/documents/${r.signature_request_id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded-md transition-all"
-                            style={{
-                              color: '#FFD700',
-                              background: 'rgba(212,175,55,0.08)',
-                              border: '1px solid rgba(212,175,55,0.3)',
-                            }}
-                          >
-                            Open
-                            <ExternalLink size={11} />
-                          </a>
-                        ) : (
-                          <span style={{ color: 'rgba(255,255,255,0.3)' }}>—</span>
-                        )}
+                        <Link
+                          href={`/documents/${r.id}`}
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded-md transition-all"
+                          style={{
+                            color: '#FFD700',
+                            background: 'rgba(212,175,55,0.08)',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                          }}
+                        >
+                          Open
+                          <ArrowRight size={11} />
+                        </Link>
                       </Td>
                     </tr>
                   ))
