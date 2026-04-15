@@ -47,13 +47,10 @@ export async function GET(req: NextRequest) {
       }
 
       // Upsert into solar_projects
+      const upsertPayload = { organization_id: ORG_ID, ...bundle.data, aurora_project_id: singleProjectId };
       const { data, error } = await supabase
         .from('solar_projects')
-        .upsert({
-          organization_id: ORG_ID,
-          aurora_project_id: singleProjectId,
-          ...bundle.data,
-        }, { onConflict: 'aurora_project_id' })
+        .upsert(upsertPayload, { onConflict: 'aurora_project_id' })
         .select()
         .single();
 
@@ -77,13 +74,10 @@ export async function GET(req: NextRequest) {
         try {
           const bundle = await aurora.fetchFullProjectBundle(project.id);
           if (bundle.success && bundle.data) {
+            const payload = { organization_id: ORG_ID, ...bundle.data, aurora_project_id: project.id };
             await supabase
               .from('solar_projects')
-              .upsert({
-                organization_id: ORG_ID,
-                aurora_project_id: project.id,
-                ...bundle.data,
-              }, { onConflict: 'aurora_project_id' });
+              .upsert(payload, { onConflict: 'aurora_project_id' });
             totalSynced++;
           }
         } catch (err) {
