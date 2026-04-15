@@ -50,7 +50,7 @@ export default function CatalogPage() {
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           <input type="text" placeholder="Search equipment..." value={search} onChange={e => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#F0A500]/30 focus:border-[#F0A500] outline-none" />
         </div>
@@ -64,10 +64,10 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {loading ? <div className="flex items-center justify-center py-20"><Loader className="animate-spin text-gray-400" size={32} /></div>
+      {loading ? <div className="flex items-center justify-center py-20"><Loader className="animate-spin text-gray-500" size={32} /></div>
       : error ? <div className="text-red-500 text-sm">{error}</div>
       : filtered.length === 0 ? (
-        <div className="card text-center py-20 text-gray-400"><Package size={48} className="mx-auto mb-3 opacity-40" /><p className="font-medium">No equipment found</p></div>
+        <div className="card text-center py-20 text-gray-500"><Package size={48} className="mx-auto mb-3 opacity-40" /><p className="font-medium">No equipment found</p></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(item => {
@@ -90,13 +90,13 @@ export default function CatalogPage() {
                 <p className="text-xs text-[#9CA3AF] mt-0.5">{item.manufacturer} · {item.model}</p>
                 {item.sku && <p className="text-xs text-[#9CA3AF]">SKU: {item.sku}</p>}
 
-                <div className="mt-3 pt-3 border-t border-gray-100 space-y-1">
+                <div className="mt-3 pt-3 border-t border-gray-200/60 space-y-1">
                   <div className="flex justify-between text-xs"><span className="text-[#9CA3AF]">Cost</span><span className="font-semibold">{fmt(costPrice)}</span></div>
                   <div className="flex justify-between text-xs"><span className="text-[#9CA3AF]">Retail</span><span className="font-semibold">{fmt(retailPrice)}</span></div>
                   <div className="flex justify-between text-xs"><span className="text-[#9CA3AF]">Markup</span><span className="font-semibold text-[#F0A500]">{markup.toFixed(1)}%</span></div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                <div className="mt-3 pt-3 border-t border-gray-200/60 flex items-center justify-between">
                   <span className="text-xs text-[#9CA3AF]">Stock</span>
                   <span className={`text-xs font-bold ${isLowStock ? 'text-red-500' : 'text-[#0B1F3A]'}`}>
                     {item.in_stock_qty ?? 0} units {isLowStock && '⚠'}

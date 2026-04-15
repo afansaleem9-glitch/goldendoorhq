@@ -158,12 +158,12 @@ export default function CustomerDNAPage() {
             <div className="card">
               <h3 className="text-sm font-bold text-[#0B1F3A] mb-3">Contact Info</h3>
               <div className="space-y-2 text-sm">
-                {str(c.email) && <div className="flex items-center gap-2 text-gray-600"><Mail size={13} className="text-gray-400" /><a href={`mailto:${str(c.email)}`} className="text-[#007A67] hover:underline">{str(c.email)}</a></div>}
-                {str(c.phone) && <div className="flex items-center gap-2 text-gray-600"><Phone size={13} className="text-gray-400" />{str(c.phone)}</div>}
-                {str(c.mobile) && <div className="flex items-center gap-2 text-gray-600"><Phone size={13} className="text-gray-400" />{str(c.mobile)} <span className="text-xs text-gray-400">(mobile)</span></div>}
+                {str(c.email) && <div className="flex items-center gap-2 text-gray-600"><Mail size={13} className="text-gray-500" /><a href={`mailto:${str(c.email)}`} className="text-[#007A67] hover:underline">{str(c.email)}</a></div>}
+                {str(c.phone) && <div className="flex items-center gap-2 text-gray-600"><Phone size={13} className="text-gray-500" />{str(c.phone)}</div>}
+                {str(c.mobile) && <div className="flex items-center gap-2 text-gray-600"><Phone size={13} className="text-gray-500" />{str(c.mobile)} <span className="text-xs text-gray-500">(mobile)</span></div>}
                 {str(c.address) && (
                   <div className="flex items-start gap-2 text-gray-600">
-                    <MapPin size={13} className="text-gray-400 mt-0.5" />
+                    <MapPin size={13} className="text-gray-500 mt-0.5" />
                     <div>{str(c.address)}<br />{[str(c.city), str(c.state)].filter(Boolean).join(', ')} {str(c.zip)}</div>
                   </div>
                 )}
@@ -184,7 +184,7 @@ export default function CustomerDNAPage() {
             {/* Credit / Prequal Section */}
             <div className="card border-l-4 border-[#7C5CBF]">
               <h3 className="text-sm font-bold text-[#0B1F3A] mb-2 flex items-center gap-2"><Shield size={14} className="text-[#7C5CBF]" /> Credit / PreQual</h3>
-              <p className="text-xs text-gray-400 mb-3">ENFN & TransUnion profile data from HubSpot</p>
+              <p className="text-xs text-gray-500 mb-3">ENFN & TransUnion profile data from HubSpot</p>
               {renderCreditSection(c)}
             </div>
 
@@ -202,16 +202,16 @@ export default function CustomerDNAPage() {
             {/* Notes */}
             <div className="card">
               <h3 className="text-sm font-bold text-[#0B1F3A] mb-3 flex items-center justify-between">
-                Notes <span className="text-xs text-gray-400">{data.notes.length}</span>
+                Notes <span className="text-xs text-gray-500">{data.notes.length}</span>
               </h3>
               {data.notes.length === 0 ? (
-                <p className="text-xs text-gray-400">No notes yet</p>
+                <p className="text-xs text-gray-500">No notes yet</p>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {data.notes.map(n => (
                     <div key={str(n.id)} className="text-xs p-2 bg-gray-50 rounded">
                       <p className="text-gray-700">{str(n.body)}</p>
-                      <p className="text-gray-400 mt-1">{fmtDateTime(str(n.created_at))}</p>
+                      <p className="text-gray-500 mt-1">{fmtDateTime(str(n.created_at))}</p>
                     </div>
                   ))}
                 </div>
@@ -230,7 +230,7 @@ export default function CustomerDNAPage() {
                   }`}>
                   <t.icon size={13} />
                   {t.label}
-                  {t.count > 0 && <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === t.key ? 'bg-white/20' : 'bg-gray-100'}`}>{t.count}</span>}
+                  {t.count > 0 && <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[11px] ${activeTab === t.key ? 'bg-white/20' : 'bg-gray-100'}`}>{t.count}</span>}
                 </button>
               ))}
             </div>
@@ -257,7 +257,7 @@ export default function CustomerDNAPage() {
 function KPI({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="card text-center py-3">
-      <p className="text-[10px] text-gray-400 uppercase tracking-wide">{label}</p>
+      <p className="text-[11px] text-gray-500 uppercase tracking-wide">{label}</p>
       <p className={`text-lg font-bold ${color}`}>{value}</p>
     </div>
   );
@@ -266,7 +266,7 @@ function KPI({ label, value, color }: { label: string; value: string; color: str
 function DateRow({ label, date }: { label: string; date: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-gray-400">{label}</span>
+      <span className="text-gray-500">{label}</span>
       <span className="text-gray-700 font-medium">{fmtDate(date)}</span>
     </div>
   );
@@ -282,7 +282,7 @@ function renderCreditSection(c: Record<string, unknown>) {
   if (!prequal_date && !credit_score && !prequal_status) {
     return (
       <div className="text-center py-4">
-        <p className="text-xs text-gray-400">No prequal data yet</p>
+        <p className="text-xs text-gray-500">No prequal data yet</p>
         <button className="mt-2 text-xs text-[#7C5CBF] font-medium hover:underline">Run PreQual Check</button>
       </div>
     );
@@ -380,7 +380,7 @@ function TimelineTab({ timeline }: { timeline: TimelineEvent[] }) {
             <div className="pb-4 flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-[#0B1F3A]">{ev.title}</p>
-                <span className="text-[10px] text-gray-400 whitespace-nowrap ml-2">{fmtDateTime(ev.date)}</span>
+                <span className="text-[11px] text-gray-500 whitespace-nowrap ml-2">{fmtDateTime(ev.date)}</span>
               </div>
               {ev.description && <p className="text-xs text-gray-500 mt-0.5">{ev.description}</p>}
             </div>
@@ -403,7 +403,7 @@ function DealsTab({ deals }: { deals: Record<string, unknown>[] }) {
               <p className="text-sm font-bold text-[#0B1F3A]">{str(d.name)}</p>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">{str(d.stage_name)}</span>
-                <span className="text-xs text-gray-400">{str(d.deal_type)}</span>
+                <span className="text-xs text-gray-500">{str(d.deal_type)}</span>
               </div>
             </div>
             <div className="text-right">
@@ -414,7 +414,7 @@ function DealsTab({ deals }: { deals: Record<string, unknown>[] }) {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
             <span>Created: {fmtDate(str(d.created_at))}</span>
             {str(d.close_date) && <span>Close: {fmtDate(str(d.close_date))}</span>}
             {str(d.expected_close_date) && <span>Expected: {fmtDate(str(d.expected_close_date))}</span>}
@@ -435,7 +435,7 @@ function ContractsTab({ contracts }: { contracts: Record<string, unknown>[] }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-bold text-[#0B1F3A]">{str(ct.title) || str(ct.contract_type)}</p>
-              <p className="text-xs text-gray-400 mt-0.5">#{str(ct.contract_number)}</p>
+              <p className="text-xs text-gray-500 mt-0.5">#{str(ct.contract_number)}</p>
             </div>
             <div className="text-right">
               <p className="text-lg font-bold text-[#7C5CBF]">{fmt(num(ct.contract_amount))}</p>
@@ -447,15 +447,15 @@ function ContractsTab({ contracts }: { contracts: Record<string, unknown>[] }) {
             </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs">
-            <div><p className="text-gray-400">Type</p><p className="font-medium text-gray-700">{str(ct.contract_type)}</p></div>
-            <div><p className="text-gray-400">Term</p><p className="font-medium text-gray-700">{num(ct.term_months)} months</p></div>
-            <div><p className="text-gray-400">Monthly</p><p className="font-medium text-gray-700">{fmt(num(ct.monthly_amount))}</p></div>
-            <div><p className="text-gray-400">Signed</p><p className="font-medium text-gray-700">{fmtDateTime(str(ct.customer_signed_at))}</p></div>
+            <div><p className="text-gray-500">Type</p><p className="font-medium text-gray-700">{str(ct.contract_type)}</p></div>
+            <div><p className="text-gray-500">Term</p><p className="font-medium text-gray-700">{num(ct.term_months)} months</p></div>
+            <div><p className="text-gray-500">Monthly</p><p className="font-medium text-gray-700">{fmt(num(ct.monthly_amount))}</p></div>
+            <div><p className="text-gray-500">Signed</p><p className="font-medium text-gray-700">{fmtDateTime(str(ct.customer_signed_at))}</p></div>
           </div>
           <div className="flex items-center gap-2 mt-3">
             {str(ct.pdf_url) && <a href={str(ct.pdf_url)} target="_blank" rel="noopener noreferrer" className="text-xs text-[#007A67] hover:underline flex items-center gap-1"><FileText size={11} /> View PDF</a>}
             {str(ct.signed_pdf_url) && <a href={str(ct.signed_pdf_url)} target="_blank" rel="noopener noreferrer" className="text-xs text-[#007A67] hover:underline flex items-center gap-1"><CheckCircle2 size={11} /> Signed Copy</a>}
-            <button className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 ml-auto"><Download size={11} /> Export</button>
+            <button className="text-xs text-gray-500 hover:text-gray-600 flex items-center gap-1 ml-auto"><Download size={11} /> Export</button>
           </div>
         </div>
       ))}
@@ -486,11 +486,11 @@ function SolarTab({ projects }: { projects: Record<string, unknown>[] }) {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm font-bold text-[#0B1F3A]">{str(p.address) || 'Solar Project'}</p>
-                <p className="text-xs text-gray-400">{[str(p.city), str(p.state)].filter(Boolean).join(', ')}</p>
+                <p className="text-xs text-gray-500">{[str(p.city), str(p.state)].filter(Boolean).join(', ')}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm font-bold text-[#F0A500]">{num(p.system_size_kw)} kW · {num(p.panel_count)} panels</p>
-                <p className="text-xs text-gray-400">{fmt(num(p.contract_amount))}</p>
+                <p className="text-xs text-gray-500">{fmt(num(p.contract_amount))}</p>
               </div>
             </div>
             {/* Stage Progress */}
@@ -498,20 +498,20 @@ function SolarTab({ projects }: { projects: Record<string, unknown>[] }) {
               {STAGES.map((s, i) => (
                 <div key={s.key} className="flex-1 text-center">
                   <div className={`h-2 rounded-full ${i <= stageIdx ? 'bg-[#F0A500]' : 'bg-gray-200'}`} />
-                  <p className="text-[9px] text-gray-400 mt-1 truncate">{s.label}</p>
+                  <p className="text-[9px] text-gray-500 mt-1 truncate">{s.label}</p>
                 </div>
               ))}
             </div>
             {/* Documents */}
             {docs.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="mt-3 pt-3 border-t border-gray-200/60">
                 <p className="text-xs font-bold text-gray-500 mb-2">Documents ({docs.length})</p>
                 <div className="space-y-1">
                   {docs.map(d => (
                     <div key={str(d.id)} className="flex items-center justify-between text-xs py-1">
-                      <span className="flex items-center gap-1 text-gray-700"><FileText size={11} className="text-gray-400" />{str(d.file_name)}</span>
+                      <span className="flex items-center gap-1 text-gray-700"><FileText size={11} className="text-gray-500" />{str(d.file_name)}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-400">{str(d.document_type)}</span>
+                        <span className="text-gray-500">{str(d.document_type)}</span>
                         {str(d.file_url) && <a href={str(d.file_url)} target="_blank" rel="noopener noreferrer" className="text-[#007A67] hover:underline"><Download size={11} /></a>}
                       </div>
                     </div>
@@ -537,11 +537,11 @@ function TicketsTab({ tickets }: { tickets: Record<string, unknown>[] }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-bold text-[#0B1F3A]">{str(t.subject)}</p>
-              <p className="text-xs text-gray-400 mt-0.5">#{str(t.ticket_number)} · {fmtDate(str(t.created_at))}</p>
+              <p className="text-xs text-gray-500 mt-0.5">#{str(t.ticket_number)} · {fmtDate(str(t.created_at))}</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${priorityColors[str(t.priority)] || 'bg-gray-100 text-gray-600'}`}>{str(t.priority)}</span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${str(t.status) === 'open' ? 'bg-red-50 text-red-500' : str(t.status) === 'resolved' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-600'}`}>{str(t.status)}</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${priorityColors[str(t.priority)] || 'bg-gray-100 text-gray-600'}`}>{str(t.priority)}</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${str(t.status) === 'open' ? 'bg-red-50 text-red-500' : str(t.status) === 'resolved' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-600'}`}>{str(t.status)}</span>
             </div>
           </div>
         </div>
@@ -562,10 +562,10 @@ function PaymentsTab({ invoices, payments }: { invoices: Record<string, unknown>
             {invoices.map(inv => (
               <div key={str(inv.id)} className="card">
                 <div className="flex items-center justify-between">
-                  <div><p className="text-sm font-medium">#{str(inv.invoice_number)}</p><p className="text-xs text-gray-400">{fmtDate(str(inv.created_at))}</p></div>
+                  <div><p className="text-sm font-medium">#{str(inv.invoice_number)}</p><p className="text-xs text-gray-500">{fmtDate(str(inv.created_at))}</p></div>
                   <div className="text-right">
                     <p className="font-bold text-[#0B1F3A]">{fmt(num(inv.total_amount))}</p>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${str(inv.status) === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>{str(inv.status)}</span>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${str(inv.status) === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>{str(inv.status)}</span>
                   </div>
                 </div>
               </div>
@@ -579,7 +579,7 @@ function PaymentsTab({ invoices, payments }: { invoices: Record<string, unknown>
           <div className="space-y-2">
             {payments.map(p => (
               <div key={str(p.id)} className="card flex items-center justify-between">
-                <div><p className="text-sm font-medium">{str(p.payment_method)}</p><p className="text-xs text-gray-400">{fmtDateTime(str(p.created_at))}</p></div>
+                <div><p className="text-sm font-medium">{str(p.payment_method)}</p><p className="text-xs text-gray-500">{fmtDateTime(str(p.created_at))}</p></div>
                 <p className="font-bold text-emerald-600">{fmt(num(p.amount))}</p>
               </div>
             ))}
@@ -597,7 +597,7 @@ function CommsTab({ contactId }: { contactId: string }) {
       {/* Call Recordings section - connects to RingCentral */}
       <div className="card border-l-4 border-blue-500">
         <h3 className="text-sm font-bold text-[#0B1F3A] flex items-center gap-2 mb-3"><PhoneCall size={14} className="text-blue-500" /> Call Recordings</h3>
-        <p className="text-xs text-gray-400 mb-3">RingCentral call recordings, Call Pilot pre-install calls</p>
+        <p className="text-xs text-gray-500 mb-3">RingCentral call recordings, Call Pilot pre-install calls</p>
         <div className="bg-blue-50 rounded-lg p-4 text-center">
           <PhoneCall size={32} className="mx-auto text-blue-400 mb-2" />
           <p className="text-sm font-medium text-blue-700">RingCentral Integration Ready</p>
@@ -609,7 +609,7 @@ function CommsTab({ contactId }: { contactId: string }) {
       {/* SMS / Text section */}
       <div className="card border-l-4 border-emerald-500">
         <h3 className="text-sm font-bold text-[#0B1F3A] flex items-center gap-2 mb-3"><MessageSquare size={14} className="text-emerald-500" /> Text Messages</h3>
-        <p className="text-xs text-gray-400 mb-3">RingCentral SMS history</p>
+        <p className="text-xs text-gray-500 mb-3">RingCentral SMS history</p>
         <div className="bg-emerald-50 rounded-lg p-4 text-center">
           <MessageSquare size={32} className="mx-auto text-emerald-400 mb-2" />
           <p className="text-sm font-medium text-emerald-700">SMS Sync Ready</p>
@@ -621,7 +621,7 @@ function CommsTab({ contactId }: { contactId: string }) {
       {/* Email section */}
       <div className="card border-l-4 border-violet-500">
         <h3 className="text-sm font-bold text-[#0B1F3A] flex items-center gap-2 mb-3"><Mail size={14} className="text-violet-500" /> Email Exchanges</h3>
-        <p className="text-xs text-gray-400 mb-3">All email correspondence with this contact</p>
+        <p className="text-xs text-gray-500 mb-3">All email correspondence with this contact</p>
         <div className="bg-violet-50 rounded-lg p-4 text-center">
           <Mail size={32} className="mx-auto text-violet-400 mb-2" />
           <p className="text-sm font-medium text-violet-700">Email History Ready</p>
@@ -642,7 +642,7 @@ function PhotosTab({ contactId }: { contactId: string }) {
   return (
     <div className="card border-l-4 border-amber-500">
       <h3 className="text-sm font-bold text-[#0B1F3A] flex items-center gap-2 mb-3"><Camera size={14} className="text-amber-500" /> Install Photos</h3>
-      <p className="text-xs text-gray-400 mb-3">Photos from CompanyCam — Solar, Roofing, Alarm installs with timestamps</p>
+      <p className="text-xs text-gray-500 mb-3">Photos from CompanyCam — Solar, Roofing, Alarm installs with timestamps</p>
       <div className="bg-amber-50 rounded-lg p-6 text-center">
         <Camera size={40} className="mx-auto text-amber-400 mb-3" />
         <p className="text-sm font-medium text-amber-700">CompanyCam Integration Ready</p>
@@ -661,7 +661,7 @@ function ReviewsTab({ contactName }: { contactName: string }) {
   return (
     <div className="card border-l-4 border-[#F0A500]">
       <h3 className="text-sm font-bold text-[#0B1F3A] flex items-center gap-2 mb-3"><Star size={14} className="text-[#F0A500]" /> GoldenReviews</h3>
-      <p className="text-xs text-gray-400 mb-3">Customer review status and request management</p>
+      <p className="text-xs text-gray-500 mb-3">Customer review status and request management</p>
       <div className="bg-[#F0A500]/5 rounded-lg p-6 text-center">
         <Star size={40} className="mx-auto text-[#F0A500] mb-3" />
         <p className="text-sm font-medium text-[#0B1F3A]">No reviews from {contactName} yet</p>
@@ -677,7 +677,7 @@ function ReviewsTab({ contactName }: { contactName: string }) {
 /* ── EMPTY STATE ── */
 function EmptyState({ icon: Icon, title, subtitle }: { icon: typeof Clock; title: string; subtitle: string }) {
   return (
-    <div className="card text-center py-12 text-gray-400">
+    <div className="card text-center py-12 text-gray-500">
       <Icon size={40} className="mx-auto mb-3 opacity-40" />
       <p className="font-medium">{title}</p>
       <p className="text-sm mt-1">{subtitle}</p>

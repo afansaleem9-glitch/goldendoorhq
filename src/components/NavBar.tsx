@@ -1,99 +1,362 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import {
-  LayoutDashboard, Users, Building2, Handshake, CheckSquare,
-  Ticket, BarChart3, Settings, Search, Bell, User, Sun, Mail,
-  Calendar, FileSignature, Activity, DollarSign, Package, Plug,
-  Workflow, Globe, Zap, Wrench, HelpCircle, Dna
+  LayoutDashboard, Users, Handshake, CheckSquare,
+  Ticket, BarChart3, Settings, Search, Bell, Sun, Mail,
+  Calendar, FileSignature, Activity, DollarSign,
+  HelpCircle, Dna, ChevronDown, Calculator, FileSpreadsheet,
+  UserCheck, Plug, Phone, GitBranch, Zap, FileText,
+  TrendingUp, BookOpen, SlidersHorizontal, ShoppingCart, X,
+  Shield, Home, Wifi, Target, PenTool, Headphones, Globe
 } from "lucide-react";
 
-const navItems = [
+const primaryNav = [
+  { href: "/customers", label: "Customer DNA", icon: Dna },
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/customers", label: "Customer DNA", icon: Dna, highlight: true },
-  { href: "/contacts", label: "Contacts", icon: Users },
-  { href: "/companies", label: "Companies", icon: Building2 },
   { href: "/deals", label: "Deals", icon: Handshake },
+  { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/solar", label: "Solar", icon: Sun },
+  { href: "/security", label: "Security", icon: Shield },
+  { href: "/roofing", label: "Roofing", icon: Home },
+  { href: "/att", label: "AT&T", icon: Wifi },
+  { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/commerce", label: "Commerce", icon: ShoppingCart },
+];
+
+const solarSubNav = [
+  { href: "/solar/dashboard", label: "Solar Dashboard" },
+  { href: "/solar/leads", label: "Solar Leads" },
+  { href: "/solar/commissions", label: "Commissions" },
+  { href: "/solar/scoreboard", label: "Scoreboard" },
+  { href: "/solar/work-queue", label: "Work Queue" },
+  { href: "/solar/contracts/generate", label: "Generate Contract" },
+];
+
+const securitySubNav = [
+  { href: "/security/dashboard", label: "Security Dashboard" },
+  { href: "/security/leads", label: "Security Leads" },
+  { href: "/security/monitoring", label: "Monitoring" },
+  { href: "/security/equipment", label: "Equipment" },
+];
+
+const roofingSubNav = [
+  { href: "/roofing/dashboard", label: "Roofing Dashboard" },
+  { href: "/roofing/leads", label: "Roofing Leads" },
+  { href: "/roofing/projects", label: "Projects" },
+  { href: "/roofing/inspections", label: "Inspections" },
+];
+
+const attSubNav = [
+  { href: "/att/dashboard", label: "AT&T Dashboard" },
+  { href: "/att/leads", label: "AT&T Leads" },
+  { href: "/att/accounts", label: "Accounts" },
+];
+
+const hubsNav = [
+  { href: "/marketing", label: "Marketing Hub", icon: Mail },
+  { href: "/marketing/campaigns", label: "Campaigns", icon: Mail },
+  { href: "/marketing/automation", label: "Automation", icon: Zap },
+  { href: "/marketing/forms-builder", label: "Forms", icon: FileText },
+  { href: "/marketing/analytics", label: "Marketing Analytics", icon: BarChart3 },
+  { href: "/sales-hub/pipeline", label: "Pipeline", icon: Target },
+  { href: "/sales-hub/sequences", label: "Sequences", icon: Zap },
+  { href: "/sales-hub/meetings", label: "Meetings", icon: Calendar },
+  { href: "/sales-hub/forecasting", label: "Forecasting", icon: TrendingUp },
+  { href: "/service-hub/tickets", label: "Tickets", icon: Ticket },
+  { href: "/service-hub/knowledge-base", label: "Knowledge Base", icon: BookOpen },
+  { href: "/service-hub/surveys", label: "Surveys", icon: CheckSquare },
+  { href: "/content-hub/blog", label: "Blog", icon: PenTool },
+  { href: "/content-hub/landing-pages", label: "Landing Pages", icon: Globe },
+  { href: "/content-hub/seo", label: "SEO", icon: TrendingUp },
+];
+
+const secondaryNav = [
   { href: "/scheduling", label: "Scheduling", icon: Calendar },
   { href: "/contracts", label: "Contracts", icon: FileSignature },
   { href: "/monitoring", label: "Monitoring", icon: Activity },
-  { href: "/accounting", label: "Accounting", icon: DollarSign },
-  { href: "/catalog", label: "Catalog", icon: Package },
+  { href: "/calling", label: "Calling Center", icon: Phone },
+  { href: "/workflows", label: "Workflows", icon: GitBranch },
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/tickets", label: "Tickets", icon: Ticket },
-  { href: "/marketing", label: "Marketing", icon: Mail },
-  { href: "/workflows", label: "Workflows", icon: Workflow },
+  { href: "/accounting", label: "Accounting", icon: DollarSign },
+  { href: "/portal/users", label: "Users", icon: UserCheck },
+  { href: "/portal/calculator", label: "Calculator", icon: Calculator },
+  { href: "/portal/adders", label: "Adders", icon: FileSpreadsheet },
   { href: "/integrations", label: "Integrations", icon: Plug },
-  { href: "/portal", label: "Portal", icon: Globe },
-  { href: "/rep-portal", label: "Rep Portal", icon: Zap },
-  { href: "/tech-portal", label: "Tech Portal", icon: Wrench },
-  { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/help", label: "Help", icon: HelpCircle },
 ];
 
+const allNav = [...primaryNav, ...hubsNav, ...secondaryNav];
+
 export function NavBar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [showMore, setShowMore] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const barInputRef = useRef<HTMLInputElement>(null);
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  // Filter navigation items based on search
+  const searchResults = searchQuery.trim()
+    ? allNav.filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : allNav;
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Focus search input when modal opens
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+  }, [searchOpen]);
+
+  const navigateTo = (href: string) => {
+    router.push(href);
+    setSearchOpen(false);
+    setSearchQuery("");
+    setShowMore(false);
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0B1F3A] h-[60px] flex items-center px-4 shadow-lg">
-      {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 mr-8 shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-[#F0A500] flex items-center justify-center">
-          <span className="text-[#0B1F3A] font-bold text-sm">GD</span>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black h-[56px] flex items-center px-5 shadow-sm">
+        {/* Logo Section */}
+        <Link href="/" className="flex items-center gap-2.5 mr-6 shrink-0 group">
+          <div className="relative shrink-0 w-[38px] h-[48px]">
+            <div className="absolute inset-0 rounded-full bg-[#FFD700]/10 blur-lg animate-pulse" />
+            <Image
+              src="/golden-door-logo.svg"
+              alt="GoldenDoor"
+              width={38}
+              height={48}
+              className="relative z-10 drop-shadow-[0_0_8px_rgba(255,215,0,0.4)] group-hover:drop-shadow-[0_0_14px_rgba(255,215,0,0.6)] transition-all duration-500"
+              priority
+            />
+          </div>
+          <div className="flex flex-col leading-none">
+            <span className="font-extrabold text-[15px] tracking-[0.10em] bg-gradient-to-r from-[#996515] via-[#FFE44D] to-[#996515] bg-clip-text text-transparent" style={{textShadow:"none"}}>GOLDEN DOOR</span>
+            <span className="text-[#DAA520]/40 text-[7.5px] font-semibold tracking-[0.25em] uppercase mt-0.5">Delta Power Group</span>
+          </div>
+        </Link>
+
+        {/* Primary Nav */}
+        <nav className="flex items-center gap-0.5 overflow-x-auto hide-scrollbar" role="navigation" aria-label="Primary navigation">
+          {primaryNav.map((item) => {
+            const active = isActive(item.href);
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded text-[12px] font-medium transition-all whitespace-nowrap ${
+                  active
+                    ? "text-white bg-white/15"
+                    : "text-white/60 hover:text-white hover:bg-white/8"
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                <Icon size={14} strokeWidth={active ? 2.5 : 2} />
+                <span className="hidden xl:inline">{item.label}</span>
+              </Link>
+            );
+          })}
+
+          {/* More button (just the trigger — dropdown renders outside overflow container) */}
+          <button
+            onClick={() => setShowMore(!showMore)}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded text-[12px] font-medium text-white/60 hover:text-white hover:bg-white/8 transition-all"
+            aria-expanded={showMore}
+            aria-haspopup="true"
+          >
+            <span className="hidden xl:inline">More</span>
+            <ChevronDown size={14} className={`transition-transform ${showMore ? "rotate-180" : ""}`} />
+          </button>
+        </nav>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Search — now opens command palette */}
+        <div
+          className="hidden md:flex items-center rounded-lg px-3 py-1.5 mr-3 bg-white/8 w-48 hover:bg-white/12 cursor-pointer transition-all"
+          onClick={() => setSearchOpen(true)}
+        >
+          <Search size={14} className="text-white/40 mr-2 shrink-0" />
+          <span className="text-white/40 text-[12px]">Search...</span>
+          <kbd className="hidden lg:inline text-[10px] text-white/30 bg-white/10 px-1.5 py-0.5 rounded font-mono ml-auto shrink-0">⌘K</kbd>
         </div>
-        <span className="text-white font-bold text-lg hidden md:block">GoldenDoor</span>
-      </Link>
 
-      {/* Nav Items */}
-      <nav className="flex items-center gap-1 overflow-x-auto hide-scrollbar">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-          const Icon = item.icon;
-          const isHighlight = "highlight" in item && item.highlight;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${
-                isActive
-                  ? "text-[#F0A500] bg-white/10"
-                  : isHighlight
-                  ? "text-[#F0A500] hover:text-[#F0A500] hover:bg-white/10"
-                  : "text-gray-300 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Icon size={16} />
-              <span className="hidden lg:inline">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Search */}
-      <div className="hidden md:flex items-center bg-white/10 rounded-lg px-3 py-1.5 mr-4 w-64">
-        <Search size={16} className="text-gray-400 mr-2" />
-        <input
-          type="text"
-          placeholder="Search CRM..."
-          className="bg-transparent text-white text-sm placeholder-gray-400 outline-none w-full"
-        />
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-3">
-        <button className="text-gray-300 hover:text-white transition-colors relative">
-          <Bell size={20} />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] text-white flex items-center justify-center font-bold">3</span>
-        </button>
-        <div className="w-8 h-8 rounded-full bg-[#F0A500] flex items-center justify-center cursor-pointer">
-          <User size={16} className="text-[#0B1F3A]" />
+        {/* Actions */}
+        <div className="flex items-center gap-2">
+          <button className="relative text-white/60 hover:text-white transition-colors p-1.5 rounded hover:bg-white/8" aria-label="Notifications">
+            <Bell size={17} />
+            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[9px] text-white flex items-center justify-center font-bold">3</span>
+          </button>
+          <div className="w-[1px] h-5 bg-white/15 mx-1" />
+          <button className="flex items-center gap-2 text-white/80 hover:text-white transition-colors p-1 rounded hover:bg-white/8" aria-label="User menu">
+            <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
+              <span className="text-black text-[11px] font-bold">AS</span>
+            </div>
+          </button>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* More Dropdown — rendered OUTSIDE the overflow container so it doesn't get clipped */}
+      {showMore && (
+        <>
+          <div className="fixed inset-0 z-[60]" onClick={() => setShowMore(false)} />
+          <div className="fixed top-[56px] right-[200px] w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[70] max-h-[70vh] overflow-auto" role="menu">
+            <div className="px-3 py-1.5 text-[10px] font-bold text-[#F0A500] uppercase tracking-wider border-b border-gray-100">Solar CRM</div>
+            {solarSubNav.map(item => {
+              const active = isActive(item.href);
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setShowMore(false)}
+                  className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${active ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"}`} role="menuitem">
+                  <Sun size={13} className="text-[#F0A500]" />
+                  {item.label}
+                </Link>
+              );
+            })}
+            <div className="border-t border-gray-100 my-1" />
+            <div className="px-3 py-1.5 text-[10px] font-bold text-purple-500 uppercase tracking-wider">Security CRM</div>
+            {securitySubNav.map(item => (
+              <Link key={item.href} href={item.href} onClick={() => setShowMore(false)} className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${isActive(item.href) ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"}`} role="menuitem"><Shield size={13} className="text-purple-500" />{item.label}</Link>
+            ))}
+            <div className="border-t border-gray-100 my-1" />
+            <div className="px-3 py-1.5 text-[10px] font-bold text-amber-600 uppercase tracking-wider">Roofing CRM</div>
+            {roofingSubNav.map(item => (
+              <Link key={item.href} href={item.href} onClick={() => setShowMore(false)} className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${isActive(item.href) ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"}`} role="menuitem"><Home size={13} className="text-amber-600" />{item.label}</Link>
+            ))}
+            <div className="border-t border-gray-100 my-1" />
+            <div className="px-3 py-1.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">AT&T CRM</div>
+            {attSubNav.map(item => (
+              <Link key={item.href} href={item.href} onClick={() => setShowMore(false)} className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${isActive(item.href) ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"}`} role="menuitem"><Wifi size={13} className="text-blue-600" />{item.label}</Link>
+            ))}
+            <div className="border-t border-gray-100 my-1" />
+            <div className="px-3 py-1.5 text-[10px] font-bold text-teal-600 uppercase tracking-wider">Hubs</div>
+            {hubsNav.map(item => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setShowMore(false)} className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${isActive(item.href) ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"}`} role="menuitem"><Icon size={13} className="text-teal-600" />{item.label}</Link>
+              );
+            })}
+            <div className="border-t border-gray-100 my-1" />
+            <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tools</div>
+            {secondaryNav.map(item => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setShowMore(false)}
+                  className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${
+                    active ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"
+                  }`}
+                  role="menuitem"
+                >
+                  <Icon size={15} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Command Palette / Search Modal */}
+      {searchOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[80]" onClick={() => { setSearchOpen(false); setSearchQuery(""); }} />
+          <div className="fixed top-[15%] left-1/2 -translate-x-1/2 w-full max-w-lg bg-white rounded-xl shadow-2xl z-[90] overflow-hidden">
+            {/* Search Input */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200">
+              <Search size={18} className="text-gray-400 shrink-0" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search pages, contacts, deals..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" && searchResults.length > 0) {
+                    navigateTo(searchResults[0].href);
+                  }
+                }}
+                className="flex-1 text-[15px] text-black outline-none placeholder-gray-400"
+              />
+              <button onClick={() => { setSearchOpen(false); setSearchQuery(""); }} className="text-gray-400 hover:text-black">
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Results */}
+            <div className="max-h-[50vh] overflow-auto py-2">
+              {searchQuery.trim() === "" && (
+                <p className="px-4 py-2 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Quick Navigation</p>
+              )}
+              {searchResults.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <p className="text-sm text-gray-400">No results for &ldquo;{searchQuery}&rdquo;</p>
+                </div>
+              ) : (
+                searchResults.map(item => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => navigateTo(item.href)}
+                      className={`flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-gray-50 transition-colors ${
+                        active ? "bg-gray-50" : ""
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                        <Icon size={16} className="text-gray-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[13px] font-semibold text-black">{item.label}</p>
+                        <p className="text-[11px] text-gray-400">{item.href}</p>
+                      </div>
+                      {active && <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">Current</span>}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-gray-200 px-4 py-2 flex items-center gap-4 text-[11px] text-gray-400">
+              <span className="flex items-center gap-1"><kbd className="bg-gray-100 px-1.5 py-0.5 rounded font-mono">↵</kbd> Navigate</span>
+              <span className="flex items-center gap-1"><kbd className="bg-gray-100 px-1.5 py-0.5 rounded font-mono">Esc</kbd> Close</span>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Spacer for fixed header */}
+      <div className="h-[56px]" />
+    </>
   );
 }

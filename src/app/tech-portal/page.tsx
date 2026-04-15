@@ -48,7 +48,7 @@ export default function TechPortalPage() {
       </div>
 
       <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
-        {loading ? <div className="flex justify-center py-20"><Loader className="animate-spin text-gray-400" size={32} /></div> : (<>
+        {loading ? <div className="flex justify-center py-20"><Loader className="animate-spin text-gray-500" size={32} /></div> : (<>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <KPI icon={Calendar} color="text-blue-500" bg="bg-blue-50" label="Today's Jobs" value={String(schedule.length)} />
             <KPI icon={Wrench} color="text-[#F0A500]" bg="bg-[#F0A500]/10" label="Active Projects" value={String(solar.length)} />
@@ -96,14 +96,14 @@ export default function TechPortalPage() {
               return (<div key={p.id} className="card hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
                   <div><p className="text-sm font-bold text-[#0B1F3A]">{p.address || 'Project'}</p>
-                    <p className="text-xs text-gray-400 flex items-center gap-1"><MapPin size={10} />{[p.city, p.state].filter(Boolean).join(', ')}</p></div>
+                    <p className="text-xs text-gray-500 flex items-center gap-1"><MapPin size={10} />{[p.city, p.state].filter(Boolean).join(', ')}</p></div>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">{(p.current_stage || '').replace(/_/g, ' ')}</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2 mb-2"><div className="h-2 rounded-full bg-[#F0A500] transition-all" style={{ width: `${pct}%` }} /></div>
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div><p className="text-gray-400">System</p><p className="font-bold">{p.system_size_kw || 0} kW</p></div>
-                  <div><p className="text-gray-400">Panels</p><p className="font-bold">{p.panel_count || 0}</p></div>
-                  <div><p className="text-gray-400">Value</p><p className="font-bold text-[#F0A500]">{fmt(Number(p.contract_amount) || 0)}</p></div>
+                  <div><p className="text-gray-500">System</p><p className="font-bold">{p.system_size_kw || 0} kW</p></div>
+                  <div><p className="text-gray-500">Panels</p><p className="font-bold">{p.panel_count || 0}</p></div>
+                  <div><p className="text-gray-500">Value</p><p className="font-bold text-[#F0A500]">{fmt(Number(p.contract_amount) || 0)}</p></div>
                 </div>
               </div>);})}
           </div>)}
@@ -129,7 +129,7 @@ export default function TechPortalPage() {
             <div className="card border-l-4 border-amber-500 text-center py-12">
               <Camera size={48} className="mx-auto text-amber-400 mb-3" />
               <h3 className="text-lg font-bold text-[#0B1F3A]">CompanyCam Integration</h3>
-              <p className="text-sm text-gray-400 mt-2">Install photos with timestamps from CompanyCam</p>
+              <p className="text-sm text-gray-500 mt-2">Install photos with timestamps from CompanyCam</p>
               <button className="mt-4 px-4 py-2 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 flex items-center gap-1 mx-auto"><Upload size={14} /> Upload Photos</button>
             </div>
           )}
@@ -138,7 +138,7 @@ export default function TechPortalPage() {
             <div className="card border-l-4 border-blue-500 text-center py-12">
               <FileText size={48} className="mx-auto text-blue-400 mb-3" />
               <h3 className="text-lg font-bold text-[#0B1F3A]">Job Documents</h3>
-              <p className="text-sm text-gray-400 mt-2">Work orders, permits, engineering docs, and inspection forms</p>
+              <p className="text-sm text-gray-500 mt-2">Work orders, permits, engineering docs, and inspection forms</p>
               <p className="text-xs text-gray-300 mt-1">Documents will appear here when linked to your assigned projects</p>
             </div>
           )}
@@ -151,10 +151,10 @@ export default function TechPortalPage() {
 function KPI({ icon: Icon, color, bg, label, value }: { icon: typeof Wrench; color: string; bg: string; label: string; value: string }) {
   return (<div className="card flex items-center gap-3">
     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bg}`}><Icon className={`w-5 h-5 ${color}`} /></div>
-    <div><p className="text-xs text-gray-400">{label}</p><p className="text-lg font-bold text-[#0B1F3A]">{value}</p></div>
+    <div><p className="text-xs text-gray-500">{label}</p><p className="text-lg font-bold text-[#0B1F3A]">{value}</p></div>
   </div>);
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="card text-center py-12 text-gray-400"><p>{text}</p></div>;
+  return <div className="card text-center py-12 text-gray-500"><p>{text}</p></div>;
 }

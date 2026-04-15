@@ -34,15 +34,15 @@ export default function CompaniesPage() {
         <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2"><Plus size={16} /> Add Company</button>
       </div>
       <div className="relative max-w-md">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
         <input type="text" placeholder="Search companies..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
           className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#F0A500]/30 focus:border-[#F0A500] outline-none" />
       </div>
       <div className="card overflow-hidden p-0">
-        {loading ? <div className="flex items-center justify-center py-20"><Loader className="animate-spin text-gray-400" size={32} /></div>
+        {loading ? <div className="flex items-center justify-center py-20"><Loader className="animate-spin text-gray-500" size={32} /></div>
         : error ? <div className="text-red-500 text-sm p-6">{error}</div>
         : companies.length === 0 ? (
-          <div className="text-center py-20 text-gray-400"><Building2 size={48} className="mx-auto mb-3 opacity-40" /><p className="font-medium">No companies found</p></div>
+          <div className="text-center py-20 text-gray-500"><Building2 size={48} className="mx-auto mb-3 opacity-40" /><p className="font-medium">No companies found</p></div>
         ) : (
           <table className="w-full text-sm">
             <thead><tr className="bg-gray-50 text-left text-[#9CA3AF] text-xs uppercase tracking-wider">

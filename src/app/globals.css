@@ -1,99 +1,190 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --navy: #0B1F3A;
-  --gold: #F0A500;
-  --teal: #007A67;
-  --purple: #7C5CBF;
-  --background: #F3F4F6;
-  --foreground: #1A1A2E;
+  /* Delta Power Group — Softer Readability Palette */
+  --delta-black: #111111;
+  --delta-dark: #1A1A1A;
+  --delta-charcoal: #222222;
+  --delta-graphite: #333333;
+  --delta-steel: #4A4A4A;
+  --delta-mid: #717171;
+  --delta-silver: #9CA3AF;
+  --delta-ash: #C0C0C0;
+  --delta-light: #E8E8E8;
+  --delta-ghost: #F7F7F8;
+  --delta-white: #FFFFFF;
+
+  /* Accent — used sparingly */
+  --delta-accent: #2563EB;
+  --delta-green: #16A34A;
+  --delta-amber: #D97706;
+  --delta-red: #DC2626;
+  --delta-teal: #0D9488;
+
+  --background: #F8F9FA;
+  --foreground: #1A1A1A;
   --card: #FFFFFF;
   --border: #E5E7EB;
-  --muted: #9CA3AF;
+  --muted: #6B7280;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-navy: #0B1F3A;
-  --color-gold: #F0A500;
-  --color-gold-hover: #D4920A;
-  --color-teal: #007A67;
-  --color-purple: #7C5CBF;
-  --color-card: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-muted: #9CA3AF;
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-delta-black: #111111;
+  --color-delta-dark: #1A1A1A;
+  --color-delta-charcoal: #222222;
+  --color-delta-graphite: #333333;
+  --color-delta-steel: #4A4A4A;
+  --color-delta-mid: #717171;
+  --color-delta-accent: #2563EB;
+  --color-delta-green: #16A34A;
+  --color-delta-amber: #D97706;
+  --color-delta-red: #DC2626;
+  --color-delta-teal: #0D9488;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.65;
+  letter-spacing: -0.006em;
 }
 
-h1, h2, h3, h4 {
-  font-family: 'DM Serif Display', serif;
+/* Typography — softer, more breathable */
+h1 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1.65rem;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  color: var(--delta-dark);
+}
+h2 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  color: var(--delta-charcoal);
+}
+h3, h4, h5, h6 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--delta-charcoal);
 }
 
+/* Paragraphs — more relaxed */
+p {
+  line-height: 1.7;
+  color: var(--delta-steel);
+}
+
+/* Small text — minimum readability floor */
+small, .text-xs, [class*="text-[10px]"], [class*="text-[11px]"] {
+  letter-spacing: 0.01em;
+}
+
+/* Cards — softer shadow, warmer feel */
+.bg-white {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+}
+
+/* Table improvements */
+table {
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+th {
+  font-weight: 600;
+  color: var(--delta-mid);
+  letter-spacing: 0.03em;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+td {
+  color: var(--delta-graphite);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+tr:hover td {
+  background: #F9FAFB;
+}
+
+/* KPI cards — larger numbers, softer labels */
+.text-2xl {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Button text clarity */
+button {
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+/* Input fields — roomier */
+input, select, textarea {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--delta-dark);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--delta-silver);
+}
+
+/* Status badges — slightly larger for readability */
+[class*="rounded-full"][class*="text-[10px]"] {
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+}
+
+/* Scrollbar — minimal */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+::-webkit-scrollbar-thumb { background: #D4D4D8; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #A1A1AA; }
 
-/* Utility classes */
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(11, 31, 58, 0.06), 0 1px 2px rgba(11, 31, 58, 0.04);
-  border: 1px solid rgba(11, 31, 58, 0.06);
-  transition: box-shadow 0.2s ease;
-}
-.card:hover { box-shadow: 0 4px 12px rgba(11, 31, 58, 0.1); }
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.btn-primary {
-  background: var(--gold);
-  color: var(--navy);
-  font-weight: 700;
-  padding: 8px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-primary:hover { background: #D4920A; transform: translateY(-1px); }
+/* Table rows */
+.table-row { transition: background 0.15s ease; }
+.table-row:hover { background: #F9FAFB; }
 
-.btn-secondary {
-  background: transparent;
-  color: var(--navy);
-  font-weight: 600;
-  padding: 8px 20px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-}
-.btn-secondary:hover { border-color: var(--navy); background: rgba(11, 31, 58, 0.04); }
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.5;
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--delta-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-.table-row {
-  transition: background 0.15s ease;
-}
-.table-row:hover {
-  background: #F9FAFB;
+/* Selection */
+::selection { background: #1A1A1A; color: #fff; }
+
+/* Transitions — smooth */
+a, button { transition: all 0.15s ease; }
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+/* Print */
+@media print {
+  nav, .no-print { display: none !important; }
+  body { background: white; }
 }

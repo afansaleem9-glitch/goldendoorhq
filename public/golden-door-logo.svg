@@ -1,0 +1,158 @@
+<svg viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Golden gradients -->
+    <linearGradient id="goldFrame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE44D"/>
+      <stop offset="30%" stop-color="#FFD700"/>
+      <stop offset="60%" stop-color="#DAA520"/>
+      <stop offset="100%" stop-color="#996515"/>
+    </linearGradient>
+    <linearGradient id="goldText" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#996515"/>
+      <stop offset="20%" stop-color="#FFD700"/>
+      <stop offset="50%" stop-color="#FFE44D"/>
+      <stop offset="80%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#996515"/>
+    </linearGradient>
+    <!-- Inner glow - the warm light pouring through -->
+    <radialGradient id="innerGlow" cx="50%" cy="55%" r="50%">
+      <stop offset="0%" stop-color="#FFFDE0" stop-opacity="1"/>
+      <stop offset="20%" stop-color="#FFE44D" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#FFD700" stop-opacity="0.7"/>
+      <stop offset="70%" stop-color="#DAA520" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6B4500" stop-opacity="0.1"/>
+    </radialGradient>
+    <!-- Pulsing core glow -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#FFF" stop-opacity="0.9">
+        <animate attributeName="stop-opacity" values="0.9;0.6;0.9" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" stop-color="#FFE44D" stop-opacity="0.5">
+        <animate attributeName="stop-opacity" values="0.5;0.3;0.5" dur="3s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#DAA520" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Outer ambient glow -->
+    <radialGradient id="ambientGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.25">
+        <animate attributeName="stop-opacity" values="0.25;0.15;0.25" dur="4s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Arch clip path -->
+    <clipPath id="archInner">
+      <path d="M56,210 L56,95 Q56,32 100,32 Q144,32 144,95 L144,210 Z"/>
+    </clipPath>
+    <!-- Glow filter -->
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="heavyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8"/>
+    </filter>
+    <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="260" fill="#0A0A0A"/>
+
+  <!-- Ambient glow behind everything -->
+  <ellipse cx="100" cy="120" rx="110" ry="110" fill="url(#ambientGlow)"/>
+
+  <!-- Concentric arched lines (background architecture) -->
+  <g fill="none" stroke="#8B6914" stroke-width="0.8">
+    <path d="M20,215 L20,85 Q20,5 100,5 Q180,5 180,85 L180,215" opacity="0.12">
+      <animate attributeName="opacity" values="0.12;0.08;0.12" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M28,215 L28,88 Q28,12 100,12 Q172,12 172,88 L172,215" opacity="0.15">
+      <animate attributeName="opacity" values="0.15;0.10;0.15" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M36,215 L36,90 Q36,20 100,20 Q164,20 164,90 L164,215" opacity="0.18">
+      <animate attributeName="opacity" values="0.18;0.12;0.18" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M44,215 L44,92 Q44,26 100,26 Q156,26 156,92 L156,215" opacity="0.20">
+      <animate attributeName="opacity" values="0.20;0.14;0.20" dur="4s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Radiating light beams from center of door -->
+  <g opacity="0.08" stroke="#FFD700" stroke-width="0.5">
+    <animate attributeName="opacity" values="0.08;0.04;0.08" dur="3s" repeatCount="indefinite"/>
+    <line x1="100" y1="120" x2="5" y2="10"/>
+    <line x1="100" y1="120" x2="195" y2="10"/>
+    <line x1="100" y1="120" x2="0" y2="60"/>
+    <line x1="100" y1="120" x2="200" y2="60"/>
+    <line x1="100" y1="120" x2="0" y2="120"/>
+    <line x1="100" y1="120" x2="200" y2="120"/>
+    <line x1="100" y1="120" x2="10" y2="180"/>
+    <line x1="100" y1="120" x2="190" y2="180"/>
+    <line x1="100" y1="120" x2="50" y2="5"/>
+    <line x1="100" y1="120" x2="150" y2="5"/>
+  </g>
+
+  <!-- Heavy glow behind door opening -->
+  <ellipse cx="100" cy="130" rx="40" ry="55" fill="#FFD700" opacity="0.15" filter="url(#heavyGlow)">
+    <animate attributeName="opacity" values="0.15;0.08;0.15" dur="3s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Door interior light -->
+  <g clip-path="url(#archInner)">
+    <rect x="56" y="32" width="88" height="178" fill="url(#innerGlow)"/>
+    <!-- Pulsing bright core -->
+    <ellipse cx="100" cy="125" rx="35" ry="45" fill="url(#coreGlow)"/>
+  </g>
+
+  <!-- Fan/sunburst lines inside arch top -->
+  <g clip-path="url(#archInner)" stroke="#DAA520" stroke-width="0.6" opacity="0.35">
+    <line x1="100" y1="35" x2="60" y2="100"/>
+    <line x1="100" y1="35" x2="70" y2="105"/>
+    <line x1="100" y1="35" x2="80" y2="108"/>
+    <line x1="100" y1="35" x2="90" y2="110"/>
+    <line x1="100" y1="35" x2="100" y2="110"/>
+    <line x1="100" y1="35" x2="110" y2="110"/>
+    <line x1="100" y1="35" x2="120" y2="108"/>
+    <line x1="100" y1="35" x2="130" y2="105"/>
+    <line x1="100" y1="35" x2="140" y2="100"/>
+  </g>
+
+  <!-- Door frame - outer arch -->
+  <path d="M50,215 L50,92 Q50,25 100,25 Q150,25 150,92 L150,215"
+        fill="none" stroke="url(#goldFrame)" stroke-width="4" filter="url(#softGlow)"/>
+
+  <!-- Door frame - inner arch -->
+  <path d="M58,213 L58,96 Q58,35 100,35 Q142,35 142,96 L142,213"
+        fill="none" stroke="url(#goldFrame)" stroke-width="2"/>
+
+  <!-- Door panels - vertical divider -->
+  <line x1="100" y1="38" x2="100" y2="213" stroke="#DAA520" stroke-width="1.8" opacity="0.7"/>
+
+  <!-- Door panels - horizontal dividers -->
+  <line x1="58" y1="105" x2="142" y2="105" stroke="#DAA520" stroke-width="1.5" opacity="0.6"/>
+  <line x1="58" y1="145" x2="142" y2="145" stroke="#DAA520" stroke-width="1.5" opacity="0.6"/>
+  <line x1="58" y1="180" x2="142" y2="180" stroke="#DAA520" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Door handles -->
+  <ellipse cx="92" cy="140" rx="2.5" ry="3.5" fill="#B8860B" stroke="#DAA520" stroke-width="0.5" opacity="0.7"/>
+  <ellipse cx="108" cy="140" rx="2.5" ry="3.5" fill="#B8860B" stroke="#DAA520" stroke-width="0.5" opacity="0.7"/>
+
+  <!-- Top keystone / crown -->
+  <path d="M93,26 L100,18 L107,26" fill="none" stroke="#FFE44D" stroke-width="1.5" filter="url(#softGlow)"/>
+
+  <!-- Light beam shooting up from crown -->
+  <line x1="100" y1="18" x2="100" y2="2" stroke="#FFD700" stroke-width="1" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;0.2;0.5" dur="2.5s" repeatCount="indefinite"/>
+  </line>
+
+  <!-- Bottom frame base -->
+  <rect x="46" y="213" width="108" height="4" rx="1" fill="url(#goldFrame)" opacity="0.7"/>
+
+  <!-- GOLDEN DOOR text -->
+  <text x="100" y="242" text-anchor="middle" fill="url(#goldText)" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" letter-spacing="8" filter="url(#textGlow)">GOLDEN DOOR</text>
+
+  <!-- EST. MMXXVI text -->
+  <text x="100" y="254" text-anchor="middle" fill="#DAA520" font-family="Georgia, 'Times New Roman', serif" font-size="7" letter-spacing="3" opacity="0.5">EST. MMXXVI</text>
+</svg>

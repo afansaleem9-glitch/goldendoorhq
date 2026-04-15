@@ -1,13 +1,8 @@
 "use client";
 import { useState, useMemo } from "react";
 import {
-  Search, Filter, ChevronDown, MoreHorizontal, User, Mail, Phone,
-  Shield, Star, MapPin, Calendar, Clock, CheckCircle2, XCircle,
-  TrendingUp, Award, Users, Building2
+  Search, MoreHorizontal, User, MapPin, Users, TrendingUp, Award
 } from "lucide-react";
-
-type Role = "all" | "dealer" | "branch_manager" | "sales_rep" | "installer" | "surveyor" | "admin" | "support";
-type Status = "all" | "active" | "inactive" | "pending";
 
 interface PortalUser {
   id: string;
@@ -22,7 +17,6 @@ interface PortalUser {
   dealsTotal: number;
   dealsMonth: number;
   revenue: number;
-  avatar?: string;
 }
 
 const mockUsers: PortalUser[] = [
@@ -40,13 +34,13 @@ const mockUsers: PortalUser[] = [
   { id: "12", name: "Brianna Warren", email: "bwarren@deltapowergroup.com", phone: "(469) 555-1212", role: "Admin", branch: "Dallas", status: "active", lastActive: "45 min ago", joined: "Oct 20, 2024", dealsTotal: 0, dealsMonth: 0, revenue: 0 },
 ];
 
-const roleColors: Record<string, string> = {
-  "Sales Rep": "bg-blue-100 text-blue-700",
-  "Branch Manager": "bg-purple-100 text-purple-700",
-  "Installer": "bg-orange-100 text-orange-700",
-  "Surveyor": "bg-teal-100 text-teal-700",
-  "Admin": "bg-red-100 text-red-700",
-  "Support": "bg-green-100 text-green-700",
+const roleStyles: Record<string, string> = {
+  "Sales Rep": "border-black text-black",
+  "Branch Manager": "border-gray-600 text-gray-700",
+  "Installer": "border-gray-400 text-gray-600",
+  "Surveyor": "border-gray-400 text-gray-600",
+  "Admin": "border-gray-800 text-gray-800",
+  "Support": "border-gray-400 text-gray-600",
 };
 
 export default function UsersPage() {
@@ -71,26 +65,26 @@ export default function UsersPage() {
     <div className="max-w-[1400px] mx-auto px-6 py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#0B1F3A]">Users & Team</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-black">Users & Team</h1>
           <p className="text-sm text-gray-500">Manage portal users, roles, and performance</p>
         </div>
-        <button className="px-4 py-2 bg-[#007A67] text-white text-sm font-medium rounded-lg hover:bg-[#006655]">+ Invite User</button>
+        <button className="px-4 py-2 bg-black text-white text-sm font-semibold rounded-lg hover:bg-gray-900 transition-colors">+ Invite User</button>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-4 gap-3 mb-6">
         {[
-          { label: "Active Users", value: totalActive, icon: Users, color: "text-green-600" },
-          { label: "Total Users", value: mockUsers.length, icon: User, color: "text-[#0B1F3A]" },
-          { label: "Deals This Month", value: totalDeals, icon: TrendingUp, color: "text-blue-600" },
-          { label: "Total Revenue", value: `$${(totalRevenue / 1000000).toFixed(1)}M`, icon: Award, color: "text-amber-600" },
+          { label: "ACTIVE USERS", value: totalActive, icon: Users },
+          { label: "TOTAL USERS", value: mockUsers.length, icon: User },
+          { label: "DEALS THIS MONTH", value: totalDeals, icon: TrendingUp },
+          { label: "TOTAL REVENUE", value: `$${(totalRevenue / 1000000).toFixed(1)}M`, icon: Award },
         ].map((kpi, i) => (
           <div key={i} className="bg-white rounded-xl border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-2">
-              <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
+              <kpi.icon className="w-5 h-5 text-gray-500" />
             </div>
-            <p className="text-2xl font-bold text-[#0B1F3A]">{kpi.value}</p>
-            <p className="text-xs text-gray-500">{kpi.label}</p>
+            <p className="text-2xl font-extrabold text-black">{kpi.value}</p>
+            <p className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">{kpi.label}</p>
           </div>
         ))}
       </div>
@@ -98,10 +92,10 @@ export default function UsersPage() {
       {/* Filters */}
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users..." className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#007A67]/20 focus:border-[#007A67]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users..." className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black transition-colors" />
         </div>
-        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none">
+        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black">
           <option value="all">All Roles</option>
           <option value="sales_rep">Sales Rep</option>
           <option value="branch_manager">Branch Manager</option>
@@ -110,7 +104,7 @@ export default function UsersPage() {
           <option value="admin">Admin</option>
           <option value="support">Support</option>
         </select>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none">
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 bg-white focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black">
           <option value="all">All Status</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
@@ -123,47 +117,47 @@ export default function UsersPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">User</th>
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">Role</th>
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">Branch</th>
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">Status</th>
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">Deals (Mo)</th>
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">Revenue</th>
-              <th className="text-left px-4 py-3 text-gray-500 font-medium">Last Active</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">User</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Branch</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Deals (Mo)</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Revenue</th>
+              <th className="text-left px-4 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Last Active</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(u => (
-              <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50/50 cursor-pointer">
+              <tr key={u.id} className="border-b border-gray-200/60 hover:bg-gray-50/50 transition-colors cursor-pointer">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#0B1F3A] flex items-center justify-center text-white text-xs font-bold">
+                    <div className="w-9 h-9 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
                       {u.name.split(" ").map(n => n[0]).join("")}
                     </div>
                     <div>
-                      <p className="font-medium text-[#0B1F3A]">{u.name}</p>
-                      <p className="text-xs text-gray-400">{u.email}</p>
+                      <p className="font-semibold text-black">{u.name}</p>
+                      <p className="text-[11px] text-gray-500">{u.email}</p>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3"><span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[u.role] || "bg-gray-100 text-gray-600"}`}>{u.role}</span></td>
-                <td className="px-4 py-3 text-gray-600"><div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-gray-400" /> {u.branch}</div></td>
+                <td className="px-4 py-3"><span className={`px-2.5 py-0.5 border rounded text-xs font-medium ${roleStyles[u.role] || "border-gray-300 text-gray-600"}`}>{u.role}</span></td>
+                <td className="px-4 py-3 text-gray-600"><div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-gray-500" /> {u.branch}</div></td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full ${u.status === "active" ? "bg-green-500" : u.status === "inactive" ? "bg-gray-400" : "bg-yellow-500"}`} />
-                    <span className="text-gray-600 capitalize">{u.status}</span>
+                    <div className={`w-2 h-2 rounded-full ${u.status === "active" ? "bg-black" : u.status === "inactive" ? "bg-gray-300" : "bg-gray-500"}`} />
+                    <span className="text-gray-600 capitalize text-xs">{u.status}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600 font-medium">{u.dealsMonth > 0 ? u.dealsMonth : "—"}</td>
-                <td className="px-4 py-3 text-gray-600 font-medium">{u.revenue > 0 ? `$${(u.revenue / 1000).toFixed(0)}K` : "—"}</td>
-                <td className="px-4 py-3 text-xs text-gray-400">{u.lastActive}</td>
-                <td className="px-4 py-3"><button className="text-gray-400 hover:text-gray-600"><MoreHorizontal className="w-4 h-4" /></button></td>
+                <td className="px-4 py-3 text-black font-semibold">{u.dealsMonth > 0 ? u.dealsMonth : "—"}</td>
+                <td className="px-4 py-3 text-black font-semibold">{u.revenue > 0 ? `$${(u.revenue / 1000).toFixed(0)}K` : "—"}</td>
+                <td className="px-4 py-3 text-xs text-gray-500">{u.lastActive}</td>
+                <td className="px-4 py-3"><button className="text-gray-500 hover:text-black transition-colors"><MoreHorizontal className="w-4 h-4" /></button></td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="px-4 py-3 bg-gray-50 text-xs text-gray-500 flex items-center justify-between">
+        <div className="px-4 py-3 bg-gray-50 text-xs text-gray-500 flex items-center justify-between border-t border-gray-200/60">
           <span>Showing {filtered.length} of {mockUsers.length} users</span>
         </div>
       </div>

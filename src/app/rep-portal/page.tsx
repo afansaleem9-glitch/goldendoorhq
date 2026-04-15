@@ -49,7 +49,7 @@ export default function RepPortalPage() {
         </div>
       </div>
       <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
-        {loading ? <div className="flex justify-center py-20"><Loader className="animate-spin text-gray-400" size={32} /></div> : (<>
+        {loading ? <div className="flex justify-center py-20"><Loader className="animate-spin text-gray-500" size={32} /></div> : (<>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             <KPI icon={Target} color="text-[#F0A500]" bg="bg-[#F0A500]/10" label="Pipeline" value={fmt(pipelineVal)} />
             <KPI icon={TrendingUp} color="text-emerald-500" bg="bg-emerald-50" label="Won Revenue" value={fmt(wonRev)} />
@@ -72,10 +72,10 @@ export default function RepPortalPage() {
                   <div><p className="text-sm font-bold text-[#0B1F3A]">{d.name}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">{d.stage_name}</span>
-                      <span className="text-xs text-gray-400">{d.deal_type}</span>
+                      <span className="text-xs text-gray-500">{d.deal_type}</span>
                     </div></div>
                   <div className="text-right"><p className="text-lg font-bold text-[#F0A500]">{fmt(Number(d.amount))}</p>
-                    {d.close_date && <p className="text-xs text-gray-400">Close: {fmtDate(d.close_date)}</p>}</div>
+                    {d.close_date && <p className="text-xs text-gray-500">Close: {fmtDate(d.close_date)}</p>}</div>
                 </div></div>))}
             {wonDeals.length > 0 && (<>
               <h3 className="text-sm font-bold text-emerald-600 mt-6">Won ({wonDeals.length})</h3>
@@ -94,21 +94,21 @@ export default function RepPortalPage() {
                   <div className="flex items-center gap-3">
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${t.status === 'completed' ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300'}`}>
                       {t.status === 'completed' ? <CheckCircle2 size={14} className="text-white" /> : null}</div>
-                    <div><p className={`text-sm font-medium ${t.status === 'completed' ? 'line-through text-gray-400' : 'text-[#0B1F3A]'}`}>{t.title}</p>
-                      <p className="text-xs text-gray-400">{t.priority} priority</p></div></div>
-                  <span className={`text-xs ${overdue ? 'text-red-500 font-bold' : 'text-gray-400'}`}>{t.due_date ? fmtDate(t.due_date) : 'No date'}</span>
+                    <div><p className={`text-sm font-medium ${t.status === 'completed' ? 'line-through text-gray-500' : 'text-[#0B1F3A]'}`}>{t.title}</p>
+                      <p className="text-xs text-gray-500">{t.priority} priority</p></div></div>
+                  <span className={`text-xs ${overdue ? 'text-red-500 font-bold' : 'text-gray-500'}`}>{t.due_date ? fmtDate(t.due_date) : 'No date'}</span>
                 </div></div>);})}
           </div>)}
           {tab === 'solar' && (<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {solar.length === 0 ? <Empty text="No solar projects" /> : solar.map(p => (
               <div key={p.id} className="card hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
-                  <div><p className="text-sm font-bold text-[#0B1F3A]">{p.address || 'Solar Project'}</p><p className="text-xs text-gray-400">{[p.city, p.state].filter(Boolean).join(', ')}</p></div>
+                  <div><p className="text-sm font-bold text-[#0B1F3A]">{p.address || 'Solar Project'}</p><p className="text-xs text-gray-500">{[p.city, p.state].filter(Boolean).join(', ')}</p></div>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">{(p.current_stage || '').replace(/_/g, ' ')}</span></div>
                 <div className="grid grid-cols-3 gap-2 text-center text-xs mt-3">
-                  <div><p className="text-gray-400">System</p><p className="font-bold">{p.system_size_kw || 0} kW</p></div>
-                  <div><p className="text-gray-400">Panels</p><p className="font-bold">{p.panel_count || 0}</p></div>
-                  <div><p className="text-gray-400">Value</p><p className="font-bold text-[#F0A500]">{fmt(Number(p.contract_amount) || 0)}</p></div>
+                  <div><p className="text-gray-500">System</p><p className="font-bold">{p.system_size_kw || 0} kW</p></div>
+                  <div><p className="text-gray-500">Panels</p><p className="font-bold">{p.panel_count || 0}</p></div>
+                  <div><p className="text-gray-500">Value</p><p className="font-bold text-[#F0A500]">{fmt(Number(p.contract_amount) || 0)}</p></div>
                 </div></div>))}
           </div>)}
           {tab === 'schedule' && (<div className="space-y-2">
@@ -116,17 +116,17 @@ export default function RepPortalPage() {
               <div key={s.id} className="card hover:shadow-md transition">
                 <div className="flex items-center justify-between">
                   <div><p className="text-sm font-bold text-[#0B1F3A]">{s.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{s.location || 'No location'} · {s.entry_type}</p></div>
+                    <p className="text-xs text-gray-500 mt-0.5">{s.location || 'No location'} · {s.entry_type}</p></div>
                   <div className="text-right">
                     <p className="text-xs font-medium text-[#007A67]">{s.start_time ? new Date(s.start_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}</p>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${s.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>{s.status}</span>
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full ${s.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>{s.status}</span>
                   </div></div></div>))}
           </div>)}
           {tab === 'commissions' && (
             <div className="card border-l-4 border-[#F0A500] text-center py-12">
               <BarChart3 size={48} className="mx-auto text-[#F0A500] mb-3" />
               <h3 className="text-lg font-bold text-[#0B1F3A]">Commission Tracking</h3>
-              <p className="text-sm text-gray-400 mt-2">Real-time commission calculations coming soon</p>
+              <p className="text-sm text-gray-500 mt-2">Real-time commission calculations coming soon</p>
             </div>)}
         </>)}
       </div>
@@ -137,10 +137,10 @@ export default function RepPortalPage() {
 function KPI({ icon: Icon, color, bg, label, value }: { icon: typeof DollarSign; color: string; bg: string; label: string; value: string }) {
   return (<div className="card flex items-center gap-3">
     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bg}`}><Icon className={`w-5 h-5 ${color}`} /></div>
-    <div><p className="text-xs text-gray-400">{label}</p><p className="text-lg font-bold text-[#0B1F3A]">{value}</p></div>
+    <div><p className="text-xs text-gray-500">{label}</p><p className="text-lg font-bold text-[#0B1F3A]">{value}</p></div>
   </div>);
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="card text-center py-12 text-gray-400"><p>{text}</p></div>;
+  return <div className="card text-center py-12 text-gray-500"><p>{text}</p></div>;
 }

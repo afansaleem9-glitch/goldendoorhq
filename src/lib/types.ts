@@ -158,24 +158,24 @@ export type SolarStage =
   | 'monitoring'
   | 'final_complete';
 
-export const SOLAR_STAGES: { key: SolarStage; label: string; color: string }[] = [
-  { key: 'ntp', label: 'NTP', color: '#3B82F6' },
-  { key: 'welcome_call_done', label: 'Welcome Call Done', color: '#6366F1' },
-  { key: 'welcome_call_reviewed', label: 'Welcome Call Reviewed', color: '#8B5CF6' },
-  { key: 'agreements_completed', label: 'Agreements Completed', color: '#A855F7' },
-  { key: 'site_capture_photos_received', label: 'Site Capture Photos', color: '#D946EF' },
-  { key: 'site_survey', label: 'Site Survey', color: '#EC4899' },
-  { key: 'preliminary_cad', label: 'Preliminary CAD', color: '#F43F5E' },
-  { key: 'scope_of_work_approval', label: 'SOW Approval', color: '#EF4444' },
-  { key: 'cad', label: 'CAD', color: '#F97316' },
-  { key: 'permit_sub', label: 'Permit Sub', color: '#F59E0B' },
-  { key: 'permit_approval', label: 'Permit Approval', color: '#EAB308' },
-  { key: 'interconnection_sub', label: 'Interconnection Sub', color: '#84CC16' },
-  { key: 'install_schedule', label: 'Install / Schedule', color: '#22C55E' },
-  { key: 'inspection', label: 'Inspection', color: '#14B8A6' },
-  { key: 'interconnection_pto_complete', label: 'Interconnection / PTO', color: '#06B6D4' },
-  { key: 'monitoring', label: 'Monitoring', color: '#0EA5E9' },
-  { key: 'final_complete', label: 'Final Complete', color: '#10B981' },
+export const SOLAR_STAGES: { key: SolarStage; label: string; color: string; phase: string }[] = [
+  { key: 'ntp', label: 'NTP', color: '#000000', phase: 'intake' },
+  { key: 'welcome_call_done', label: 'Welcome Call Done', color: '#1a1a1a', phase: 'intake' },
+  { key: 'welcome_call_reviewed', label: 'Welcome Call Reviewed', color: '#2a2a2a', phase: 'intake' },
+  { key: 'agreements_completed', label: 'Agreements Completed', color: '#333333', phase: 'agreements' },
+  { key: 'site_capture_photos_received', label: 'Site Capture Photos', color: '#3d3d3d', phase: 'site_work' },
+  { key: 'site_survey', label: 'Site Survey', color: '#474747', phase: 'site_work' },
+  { key: 'preliminary_cad', label: 'Preliminary CAD', color: '#525252', phase: 'design' },
+  { key: 'scope_of_work_approval', label: 'SOW Approval', color: '#5c5c5c', phase: 'design' },
+  { key: 'cad', label: 'CAD', color: '#666666', phase: 'design' },
+  { key: 'permit_sub', label: 'Permit Sub', color: '#707070', phase: 'permitting' },
+  { key: 'permit_approval', label: 'Permit Approval', color: '#7a7a7a', phase: 'permitting' },
+  { key: 'interconnection_sub', label: 'Interconnection Sub', color: '#858585', phase: 'permitting' },
+  { key: 'install_schedule', label: 'Install / Schedule', color: '#8f8f8f', phase: 'install' },
+  { key: 'inspection', label: 'Inspection', color: '#999999', phase: 'install' },
+  { key: 'interconnection_pto_complete', label: 'Interconnection / PTO', color: '#a3a3a3', phase: 'closeout' },
+  { key: 'monitoring', label: 'Monitoring', color: '#adadad', phase: 'closeout' },
+  { key: 'final_complete', label: 'Final Complete', color: '#10B981', phase: 'complete' },
 ];
 
 export interface SolarProject {

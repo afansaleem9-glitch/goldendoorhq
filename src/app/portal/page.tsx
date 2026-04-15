@@ -170,11 +170,11 @@ export default function CustomerPortalPage() {
                         </div>
                         <div className={`pb-4 ${!isCompleted && !isActive ? 'opacity-40' : ''}`}>
                           <div className="flex items-center gap-2">
-                            <p className={`text-sm font-medium ${isActive ? 'text-[#0B1F3A]' : isCompleted ? 'text-gray-700' : 'text-gray-400'}`}>
+                            <p className={`text-sm font-medium ${isActive ? 'text-[#0B1F3A]' : isCompleted ? 'text-gray-700' : 'text-gray-500'}`}>
                               {stage.label}
                             </p>
                             {isActive && (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-white" style={{ backgroundColor: color }}>
+                              <span className="text-[11px] px-2 py-0.5 rounded-full font-bold text-white" style={{ backgroundColor: color }}>
                                 CURRENT
                               </span>
                             )}

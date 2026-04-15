@@ -491,7 +491,7 @@ export default function HelpPage() {
                 <h1 className="text-2xl font-bold text-white">{selected.title}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs px-2 py-0.5 rounded bg-[#007A67] text-white">{selected.category}</span>
-                  <code className="text-xs text-gray-400">{selected.route}</code>
+                  <code className="text-xs text-gray-500">{selected.route}</code>
                 </div>
               </div>
             </div>
@@ -614,7 +614,7 @@ export default function HelpPage() {
       {/* Search + Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex-1 relative">
-          <HelpCircle size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <HelpCircle size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -675,13 +675,13 @@ export default function HelpPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-[#0B1F3A] text-sm">{manual.title}</h3>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{manual.category}</span>
+                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">{manual.category}</span>
                 </div>
               </div>
               <p className="text-xs text-gray-600 leading-relaxed mb-3">{manual.purpose}</p>
               <div className="flex items-center justify-between">
-                <code className="text-[10px] text-gray-400">{manual.route}</code>
-                <ChevronRight size={14} className="text-gray-400 group-hover:text-[#F0A500] transition-colors" />
+                <code className="text-[11px] text-gray-500">{manual.route}</code>
+                <ChevronRight size={14} className="text-gray-500 group-hover:text-[#F0A500] transition-colors" />
               </div>
             </button>
           );

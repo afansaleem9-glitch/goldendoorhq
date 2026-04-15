@@ -1,190 +1,310 @@
 'use client';
 
-import { useApi } from '@/lib/hooks/useApi';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   DollarSign, TrendingUp, Users, Target, Phone, Mail,
-  Calendar, FileText, ArrowRight, CheckCircle, Clock, Loader
+  Calendar, FileText, ArrowRight, CheckCircle, Clock,
+  Zap, Plus, MessageSquare, ArrowUpRight, ArrowDownRight, Star
 } from 'lucide-react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase, ORG_ID } from '@/lib/supabase';
 
-function fmt(n: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+function fmt(n: number) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n); }
+
+interface DashStats {
+  totalDeals: number;
+  pipelineValue: number;
+  wonValue: number;
+  contactCount: number;
+  callsToday: number;
+  conversionRate: number;
 }
 
-interface Contact { id: string; first_name: string; last_name: string; full_name: string; email: string; phone?: string; lifecycle_stage: string; }
-interface Deal { id: string; name: string; amount: number; stage_name: string; is_won: boolean; is_lost: boolean; close_date?: string; }
-interface Task { id: string; title: string; status: string; priority: string; due_date?: string; }
-interface Ticket { id: string; subject: string; status: string; priority: string; created_at: string; }
-interface Activity { id: string; activity_type: string; subject: string; body: string; created_at: string; }
+interface PipelineStage {
+  name: string;
+  count: number;
+  value: number;
+}
 
-const SkeletonCard = () => (
-  <div className="card animate-pulse">
-    <div className="flex items-center justify-between mb-3">
-      <div className="h-4 w-24 bg-gray-200 rounded" />
-      <div className="w-9 h-9 bg-gray-200 rounded-lg" />
-    </div>
-    <div className="h-8 w-32 bg-gray-200 rounded mb-2" />
-    <div className="h-4 w-20 bg-gray-100 rounded" />
-  </div>
-);
+interface RecentDeal {
+  id: string;
+  deal_name: string;
+  amount: number;
+  stage_name: string;
+  deal_type: string;
+  created_at: string;
+  contact_name: string;
+}
+
+interface RecentCall {
+  id: string;
+  customer_name: string;
+  phone_number: string;
+  call_type: string;
+  duration_seconds: number;
+  created_at: string;
+}
 
 export default function DashboardPage() {
-  const { data: contacts, loading: cLoad } = useApi<Contact>('/api/contacts', { limit: 500 });
-  const { data: deals, loading: dLoad } = useApi<Deal>('/api/deals', { limit: 500 });
-  const { data: tasks, loading: tLoad } = useApi<Task>('/api/tasks', { limit: 100 });
-  const { data: tickets, loading: tkLoad } = useApi<Ticket>('/api/tickets', { limit: 100 });
-  const { data: activities, loading: aLoad } = useApi<Activity>('/api/contacts', { limit: 10 }); // activities table via contacts for now
+  const [stats, setStats] = useState<DashStats>({ totalDeals: 0, pipelineValue: 0, wonValue: 0, contactCount: 0, callsToday: 0, conversionRate: 0 });
+  const [pipeline, setPipeline] = useState<PipelineStage[]>([]);
+  const [recentDeals, setRecentDeals] = useState<RecentDeal[]>([]);
+  const [recentCalls, setRecentCalls] = useState<RecentCall[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const loading = cLoad || dLoad || tLoad;
+  useEffect(() => { fetchDashboard(); }, []);
 
-  // Compute KPIs from real data
-  const openDeals = deals.filter(d => !d.is_won && !d.is_lost);
-  const pipelineValue = openDeals.reduce((s, d) => s + (Number(d.amount) || 0), 0);
-  const openTasks = tasks.filter(t => t.status !== 'completed' && t.status !== 'cancelled');
-  const openTickets = tickets.filter(t => t.status !== 'resolved' && t.status !== 'closed');
+  async function fetchDashboard() {
+    setLoading(true);
+    try {
+      // Fetch all data in parallel
+      const [dealsRes, contactsRes, stagesRes, callsRes] = await Promise.all([
+        supabase.from('deals').select('id, deal_name, amount, stage_id, deal_type, created_at, probability, contacts ( first_name, last_name )').eq('organization_id', ORG_ID).is('deleted_at', null).order('created_at', { ascending: false }),
+        supabase.from('contacts').select('id').eq('organization_id', ORG_ID).is('deleted_at', null),
+        supabase.from('deal_stages').select('*').eq('organization_id', ORG_ID).order('display_order', { ascending: true }),
+        supabase.from('call_log').select('id, customer_name, phone_number, call_type, duration_seconds, created_at').eq('organization_id', ORG_ID).order('created_at', { ascending: false }).limit(10),
+      ]);
 
-  // Compute deals by stage for chart
-  const stageMap: Record<string, number> = {};
-  openDeals.forEach(d => {
-    const stage = d.stage_name || 'Unknown';
-    stageMap[stage] = (stageMap[stage] || 0) + (Number(d.amount) || 0);
-  });
-  const dealsByStage = Object.entries(stageMap).map(([stage, value]) => ({ stage, value }));
+      const deals = dealsRes.data || [];
+      const contacts = contactsRes.data || [];
+      const stages = stagesRes.data || [];
+      const calls = callsRes.data || [];
 
-  const metricCards = [
-    { label: 'Total Contacts', value: contacts.length.toString(), icon: Users, color: '#8B5CF6' },
-    { label: 'Open Deals', value: openDeals.length.toString(), icon: TrendingUp, color: '#3B82F6' },
-    { label: 'Pipeline Value', value: fmt(pipelineValue), icon: DollarSign, color: '#22C55E' },
-    { label: 'Open Tasks', value: openTasks.length.toString(), icon: Target, color: '#F0A500' },
-  ];
+      // Calculate stats
+      const wonStages = stages.filter((s: any) => s.name?.toLowerCase().includes('won'));
+      const lostStages = stages.filter((s: any) => s.name?.toLowerCase().includes('lost'));
+      const wonIds = new Set(wonStages.map((s: any) => s.id));
+      const lostIds = new Set(lostStages.map((s: any) => s.id));
 
-  const activityIcons: Record<string, typeof Phone> = {
-    call: Phone, email: Mail, meeting: Calendar, note: FileText,
-    deal_stage_change: ArrowRight, task_completed: CheckCircle,
-  };
+      const wonDeals = deals.filter((d: any) => wonIds.has(d.stage_id));
+      const pipelineDeals = deals.filter((d: any) => !wonIds.has(d.stage_id) && !lostIds.has(d.stage_id));
+
+      const pipelineValue = pipelineDeals.reduce((s: number, d: any) => s + (d.amount || 0), 0);
+      const wonValue = wonDeals.reduce((s: number, d: any) => s + (d.amount || 0), 0);
+
+      const today = new Date().toISOString().split('T')[0];
+      const callsToday = calls.filter((c: any) => c.created_at?.split('T')[0] === today).length;
+
+      const closedDeals = wonDeals.length + deals.filter((d: any) => lostIds.has(d.stage_id)).length;
+      const conversionRate = closedDeals > 0 ? Math.round((wonDeals.length / closedDeals) * 100) : 0;
+
+      setStats({
+        totalDeals: deals.length,
+        pipelineValue,
+        wonValue,
+        contactCount: contacts.length,
+        callsToday,
+        conversionRate,
+      });
+
+      // Pipeline by stage
+      const pipelineData: PipelineStage[] = stages
+        .filter((s: any) => !s.name?.toLowerCase().includes('lost'))
+        .map((s: any) => {
+          const stageDeals = deals.filter((d: any) => d.stage_id === s.id);
+          return {
+            name: s.name,
+            count: stageDeals.length,
+            value: stageDeals.reduce((sum: number, d: any) => sum + (d.amount || 0), 0),
+          };
+        })
+        .filter((p: PipelineStage) => p.count > 0);
+      setPipeline(pipelineData);
+
+      // Recent deals
+      const recentDealData: RecentDeal[] = deals.slice(0, 8).map((d: any) => {
+        const c = d.contacts;
+        const stageName = stages.find((s: any) => s.id === d.stage_id)?.name || 'Unknown';
+        return {
+          id: d.id,
+          deal_name: d.deal_name,
+          amount: d.amount || 0,
+          stage_name: stageName,
+          deal_type: d.deal_type || 'solar',
+          created_at: d.created_at,
+          contact_name: c ? `${c.first_name} ${c.last_name}` : 'Unknown',
+        };
+      });
+      setRecentDeals(recentDealData);
+      setRecentCalls(calls.slice(0, 6));
+    } catch (err) {
+      console.error('Dashboard fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const maxPipelineValue = Math.max(...pipeline.map(p => p.value), 1);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-56px)]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#0B1F3A]">Good morning, James</h1>
-        <p className="text-[#9CA3AF] text-sm mt-1">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+    <div className="p-5 max-w-[1600px] mx-auto space-y-5">
+      {/* Welcome */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[22px] font-extrabold text-black tracking-tight">Welcome back, Afan</h1>
+          <p className="text-[13px] text-gray-500">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/contacts" className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">
+            <Users size={13} /> Contacts
+          </Link>
+          <Link href="/solar" className="flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold text-white bg-black rounded-lg hover:bg-gray-900">
+            <Zap size={13} /> Solar Pipeline
+          </Link>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {loading ? (
-          <><SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard /></>
-        ) : (
-          metricCards.map((m) => {
-            const Icon = m.icon;
-            return (
-              <div key={m.label} className="card">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-[#9CA3AF]">{m.label}</span>
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: m.color + '18' }}>
-                    <Icon size={18} style={{ color: m.color }} />
-                  </div>
-                </div>
-                <p className="text-2xl font-bold text-[#0B1F3A]">{m.value}</p>
+      {/* KPI Strip */}
+      <div className="grid grid-cols-4 gap-4">
+        {[
+          { label: 'PIPELINE VALUE', value: fmt(stats.pipelineValue), sub: `${stats.totalDeals} total deals`, icon: Target },
+          { label: 'DEALS WON', value: fmt(stats.wonValue), sub: 'Closed revenue', icon: DollarSign },
+          { label: 'CONTACTS', value: stats.contactCount.toString(), sub: 'Active in CRM', icon: Users },
+          { label: 'CONVERSION RATE', value: `${stats.conversionRate}%`, sub: 'Won vs closed', icon: TrendingUp },
+        ].map(kpi => (
+          <div key={kpi.label} className="bg-white rounded-xl border border-gray-200/60 p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">{kpi.label}</span>
+              <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center">
+                <kpi.icon size={16} className="text-gray-500" />
               </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Charts + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card lg:col-span-2">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Deals by Stage</h3>
-          {dLoad ? (
-            <div className="h-[280px] flex items-center justify-center"><Loader className="animate-spin text-gray-400" size={32} /></div>
-          ) : dealsByStage.length > 0 ? (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={dealsByStage} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis type="number" tick={{ fill: '#6B7280', fontSize: 11 }} tickFormatter={(v) => `$${v / 1000}k`} />
-                <YAxis type="category" dataKey="stage" tick={{ fill: '#6B7280', fontSize: 11 }} width={100} />
-                <Tooltip formatter={(v) => fmt(Number(v))} />
-                <Bar dataKey="value" fill="#0B1F3A" radius={[0, 4, 4, 0]} barSize={18} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[280px] flex items-center justify-center text-gray-400">No deal data yet — add your first deal to see the pipeline chart</div>
-          )}
-        </div>
-
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-4">Quick Stats</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm text-[#9CA3AF]">Open Tickets</span>
-              <span className="text-lg font-bold text-[#0B1F3A]">{openTickets.length}</span>
             </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm text-[#9CA3AF]">Won Deals</span>
-              <span className="text-lg font-bold text-green-600">{deals.filter(d => d.is_won).length}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm text-[#9CA3AF]">Won Revenue</span>
-              <span className="text-lg font-bold text-green-600">{fmt(deals.filter(d => d.is_won).reduce((s, d) => s + (Number(d.amount) || 0), 0))}</span>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm text-[#9CA3AF]">Customers</span>
-              <span className="text-lg font-bold text-[#0B1F3A]">{contacts.filter(c => c.lifecycle_stage === 'customer').length}</span>
-            </div>
+            <p className="text-3xl font-extrabold text-black">{kpi.value}</p>
+            <p className="text-[11px] text-gray-500 mt-1">{kpi.sub}</p>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Tasks + Top Deals */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-3">Upcoming Tasks</h3>
-          <div className="space-y-2">
-            {tLoad ? (
-              <>{[1,2,3].map(i => <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />)}</>
-            ) : openTasks.length === 0 ? (
-              <p className="text-gray-400 text-sm">No upcoming tasks</p>
+      {/* Two Column Layout */}
+      <div className="flex gap-5">
+        {/* LEFT */}
+        <div className="flex-1 space-y-5">
+          {/* Pipeline Summary */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[15px] font-extrabold text-black">Pipeline Summary</h2>
+              <Link href="/deals" className="text-[11px] font-semibold text-gray-500 hover:text-black flex items-center gap-1">View Deals <ArrowRight size={12} /></Link>
+            </div>
+            {pipeline.length === 0 ? (
+              <p className="text-sm text-gray-400 py-4 text-center">No pipeline data yet</p>
             ) : (
-              openTasks.slice(0, 6).map((t) => (
-                <div key={t.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className={`w-2 h-2 rounded-full shrink-0 ${
-                    t.priority === 'urgent' ? 'bg-red-500' : t.priority === 'high' ? 'bg-orange-500' : t.priority === 'medium' ? 'bg-blue-500' : 'bg-gray-400'
-                  }`} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-[#0B1F3A] truncate">{t.title}</p>
-                    <p className="text-xs text-[#9CA3AF]">Due {t.due_date ? new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No date'}</p>
+              <div className="space-y-3">
+                {pipeline.map(p => (
+                  <div key={p.name} className="flex items-center gap-3">
+                    <span className="text-[11px] font-medium text-gray-500 w-28 shrink-0 truncate">{p.name}</span>
+                    <div className="flex-1 bg-gray-100 rounded-full h-5 relative overflow-hidden">
+                      <div className="h-5 bg-black rounded-full flex items-center justify-end pr-2 transition-all" style={{ width: `${Math.max((p.value / maxPipelineValue) * 100, 15)}%` }}>
+                        <span className="text-[10px] font-bold text-white">{p.count}</span>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-black w-16 text-right">{fmt(p.value)}</span>
                   </div>
-                  <Clock size={14} className="text-[#9CA3AF] shrink-0" />
-                </div>
-              ))
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent Deals */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[15px] font-extrabold text-black">Recent Deals</h2>
+              <Link href="/deals" className="text-[11px] font-semibold text-gray-500 hover:text-black flex items-center gap-1">View All <ArrowRight size={12} /></Link>
+            </div>
+            {recentDeals.length === 0 ? (
+              <p className="text-sm text-gray-400 py-4 text-center">No deals yet</p>
+            ) : (
+              <div className="space-y-0">
+                {recentDeals.map((d, i) => (
+                  <div key={d.id} className={`flex items-center gap-3 py-3 ${i < recentDeals.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                      <DollarSign size={14} className={d.stage_name.toLowerCase().includes('won') ? 'text-emerald-600' : 'text-gray-500'} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-bold text-black truncate">{d.deal_name}</p>
+                      <p className="text-[11px] text-gray-500">{d.contact_name} · {d.deal_type}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[13px] font-extrabold text-black">{fmt(d.amount)}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${d.stage_name.toLowerCase().includes('won') ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>{d.stage_name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
 
-        <div className="card">
-          <h3 className="text-lg font-bold text-[#0B1F3A] mb-3">Top Deals</h3>
-          <div className="space-y-3">
-            {dLoad ? (
-              <>{[1,2,3].map(i => <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />)}</>
-            ) : deals.length === 0 ? (
-              <p className="text-gray-400 text-sm">No deals found</p>
+        {/* RIGHT SIDEBAR */}
+        <div className="w-[340px] shrink-0 space-y-5">
+          {/* Recent Calls */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[15px] font-extrabold text-black">Recent Calls</h2>
+              <Link href="/calling" className="text-[11px] font-semibold text-gray-500 hover:text-black">View All</Link>
+            </div>
+            {recentCalls.length === 0 ? (
+              <p className="text-sm text-gray-400 py-4 text-center">No calls logged yet</p>
             ) : (
-              [...deals].sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0)).slice(0, 6).map((deal) => (
-                <div key={deal.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-[#0B1F3A] truncate">{deal.name}</p>
-                    <p className="text-xs text-[#9CA3AF]">{deal.stage_name}</p>
+              <div className="space-y-2">
+                {recentCalls.map(c => (
+                  <div key={c.id} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                    <Phone size={13} className={c.call_type === 'inbound' ? 'text-blue-500' : 'text-green-500'} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-black truncate">{c.customer_name}</p>
+                      <p className="text-[11px] text-gray-500">{c.phone_number}</p>
+                    </div>
+                    <span className="text-[11px] text-gray-400">{c.duration_seconds ? `${Math.floor(c.duration_seconds / 60)}m` : '0m'}</span>
                   </div>
-                  <p className="text-sm font-semibold text-[#F0A500] whitespace-nowrap ml-2">{fmt(Number(deal.amount) || 0)}</p>
-                </div>
-              ))
+                ))}
+              </div>
             )}
+          </div>
+
+          {/* Quick Stats */}
+          <div className="bg-white rounded-xl border border-gray-200/60 p-5">
+            <h2 className="text-[15px] font-extrabold text-black mb-3">Quick Stats</h2>
+            {[
+              { label: 'Total Deals', value: stats.totalDeals },
+              { label: 'Pipeline Value', value: fmt(stats.pipelineValue) },
+              { label: 'Won Revenue', value: fmt(stats.wonValue) },
+              { label: 'Contacts', value: stats.contactCount },
+              { label: 'Calls Today', value: stats.callsToday },
+            ].map(s => (
+              <div key={s.label} className="flex justify-between py-2 border-b border-gray-50 last:border-0">
+                <span className="text-[12px] text-gray-500">{s.label}</span>
+                <span className="text-[12px] font-bold text-black">{s.value}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="bg-black rounded-xl p-5">
+            <h2 className="text-[13px] font-extrabold text-white mb-3">Quick Actions</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: 'New Deal', icon: DollarSign, href: '/deals' },
+                { label: 'New Contact', icon: Users, href: '/contacts' },
+                { label: 'Solar Pipeline', icon: Zap, href: '/solar' },
+                { label: 'Call Center', icon: Phone, href: '/calling' },
+              ].map(a => (
+                <Link key={a.label} href={a.href} className="flex items-center gap-2 px-3 py-2.5 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors">
+                  <a.icon size={14} />
+                  <span className="text-[11px] font-semibold">{a.label}</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -1,0 +1,16 @@
+<svg viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- X marks crossing into triangle/delta shape -->
+  <!-- Upper spikes -->
+  <path d="M60 0 L54 52 L40 52 Z" fill="white"/>
+  <path d="M60 0 L66 52 L80 52 Z" fill="white"/>
+  <!-- Left arm of X going up-left -->
+  <path d="M20 10 L50 55 L42 60 Z" fill="white"/>
+  <!-- Right arm of X going up-right -->
+  <path d="M100 10 L70 55 L78 60 Z" fill="white"/>
+  <!-- Triangle body -->
+  <path d="M18 115 L60 30 L102 115 Z" fill="white"/>
+  <!-- Triangle cutout (inner) -->
+  <path d="M35 110 L60 55 L85 110 Z" fill="black"/>
+  <!-- DELTA text -->
+  <text x="60" y="135" text-anchor="middle" fill="white" font-family="Inter, Helvetica, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">DELTA</text>
+</svg>

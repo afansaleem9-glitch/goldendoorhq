@@ -1,0 +1,15 @@
+<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Delta X Mark - accurate recreation from actual logo -->
+  <!-- Left arm of X going up-left -->
+  <path d="M14,8 L48,54 L42,60 Z" fill="white"/>
+  <!-- Right arm of X going up-right -->
+  <path d="M86,8 L52,54 L58,60 Z" fill="white"/>
+  <!-- Center spike going straight up -->
+  <path d="M44,5 L50,0 L56,5 L52,46 L48,46 Z" fill="white"/>
+  <!-- Triangle body below -->
+  <path d="M10,98 L50,22 L90,98 Z" fill="white"/>
+  <!-- Triangle cutout (inner black) -->
+  <path d="M30,94 L50,52 L70,94 Z" fill="black"/>
+  <!-- DELTA text -->
+  <text x="50" y="116" text-anchor="middle" fill="white" font-family="Inter, Helvetica, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="4">DELTA</text>
+</svg>

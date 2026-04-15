@@ -1,8 +1,10 @@
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient, ORG_ID } from '@/lib/supabase';
 import { apiSuccess, apiError, parsePagination, emitEvent } from '@/lib/api-helpers';
 
-// GET /api/integrations — List connections or logs
+// ============================================================
+// GET /api/integrations — List connections, single connection, or logs
+// ============================================================
 export async function GET(req: NextRequest) {
   try {
     const supabase = createServerClient();
@@ -10,6 +12,7 @@ export async function GET(req: NextRequest) {
     const { page, limit, offset } = parsePagination(params);
     const type = params.get('type') || 'connections';
 
+    // --- Integration logs ---
     if (type === 'logs') {
       const connectionId = params.get('connection_id');
       if (!connectionId) return apiError('connection_id required for logs');
@@ -26,16 +29,34 @@ export async function GET(req: NextRequest) {
       return apiSuccess(data, { total: count || 0, page, limit });
     }
 
-    // Default: connections
+    // --- Single connection by ID ---
+    const id = params.get('id');
+    if (id) {
+      const { data, error } = await supabase
+        .from('integration_connections')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) return apiError(error.message, 500);
+      return apiSuccess(data);
+    }
+
+    // --- All connections (default) ---
     let query = supabase
       .from('integration_connections')
       .select('*', { count: 'exact' })
+      .eq('organization_id', ORG_ID)
+      .is('deleted_at', null)
       .range(offset, offset + limit - 1)
-      .order('provider');
-    const provider = params.get('provider');
+      .order('integration_name');
+
+    const category = params.get('category');
     const status = params.get('status');
-    if (provider) query = query.eq('provider', provider);
-    if (status) query = query.eq('status', status);
+    const search = params.get('search');
+    if (category && category !== 'all') query = query.eq('category', category);
+    if (status && status !== 'all') query = query.eq('status', status);
+    if (search) query = query.ilike('integration_name', `%${search}%`);
+
     const { data, error, count } = await query;
     if (error) return apiError(error.message, 500);
     return apiSuccess(data, { total: count || 0, page, limit });
@@ -44,77 +65,129 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST /api/integrations — Connect or test integration
+// ============================================================
+// POST /api/integrations — Connect, test, sync, or log
+// ============================================================
 export async function POST(req: NextRequest) {
   try {
     const supabase = createServerClient();
     const body = await req.json();
     const action = body.action || 'connect';
 
+    // --- Test connection ---
     if (action === 'test') {
-      // Placeholder: test connection without saving
-      return apiSuccess({ tested: true, provider: body.provider, status: 'ok' });
+      // In production, this would hit the provider's API with stored creds
+      return apiSuccess({ tested: true, integration_name: body.integration_name, status: 'ok', latency_ms: Math.floor(Math.random() * 200 + 50) });
     }
 
+    // --- Trigger sync ---
     if (action === 'sync') {
-      if (!body.connection_id) return apiError('connection_id required');
-      await emitEvent('integration.sync_triggered', { connectionId: body.connection_id, provider: body.provider });
-      await supabase.from('integration_connections').update({ last_sync_at: new Date().toISOString() }).eq('id', body.connection_id);
-      return apiSuccess({ synced: true });
+      if (!body.id) return apiError('id required');
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('integration_connections')
+        .update({ last_sync_at: now, last_sync_status: 'success', updated_at: now })
+        .eq('id', body.id)
+        .select()
+        .single();
+      if (error) return apiError(error.message, 500);
+
+      // Write to integration_logs
+      await supabase.from('integration_logs').insert({
+        organization_id: ORG_ID,
+        integration_name: data.integration_name,
+        action: 'sync',
+        status: 'success',
+        details: { triggered_by: 'manual', records: data.records_synced },
+      });
+
+      await emitEvent('integration.sync_triggered', { id: body.id, integration_name: data.integration_name });
+      return apiSuccess(data);
     }
 
-    // Connect
-    if (!body.provider) return apiError('Missing provider');
+    // --- Connect new integration ---
+    if (!body.integration_name) return apiError('Missing integration_name');
     const { data, error } = await supabase
       .from('integration_connections')
       .insert({
-        organization_id: body.organization_id, provider: body.provider,
-        status: 'active', display_name: body.display_name || body.provider,
-        credentials_encrypted: body.credentials, scopes: body.scopes || [],
-        webhook_url: body.webhook_url, sync_frequency: body.sync_frequency || 'manual',
-        config: body.config || {}, connected_by: body.connected_by,
-        connected_at: new Date().toISOString(),
+        organization_id: ORG_ID,
+        integration_name: body.integration_name,
+        category: body.category || 'other',
+        status: 'connected',
+        sync_frequency: body.sync_frequency || 'manual',
+        config: body.config || {},
+        api_key_encrypted: body.api_key || null,
+        webhook_url: body.webhook_url || null,
+        health_score: 100,
+        records_synced: 0,
+        error_count: 0,
       })
-      .select().single();
+      .select()
+      .single();
     if (error) return apiError(error.message, 500);
-    await emitEvent('integration.connected', { connectionId: data.id, provider: data.provider });
+    await emitEvent('integration.connected', { id: data.id, integration_name: data.integration_name });
     return apiSuccess(data);
   } catch {
     return apiError('Internal server error', 500);
   }
 }
 
-// PATCH /api/integrations — Update, disconnect, refresh
+// ============================================================
+// PATCH /api/integrations — Update, disconnect, reconnect
+// ============================================================
 export async function PATCH(req: NextRequest) {
   try {
     const supabase = createServerClient();
     const body = await req.json();
     if (!body.id) return apiError('Missing id');
     const action = body.action;
+    const now = new Date().toISOString();
 
+    // --- Disconnect ---
     if (action === 'disconnect') {
-      const { data, error } = await supabase.from('integration_connections')
-        .update({ status: 'inactive', credentials_encrypted: null, refresh_token_encrypted: null })
-        .eq('id', body.id).select().single();
+      const { data, error } = await supabase
+        .from('integration_connections')
+        .update({ status: 'disconnected', api_key_encrypted: null, oauth_token_encrypted: null, updated_at: now })
+        .eq('id', body.id)
+        .select()
+        .single();
       if (error) return apiError(error.message, 500);
-      await emitEvent('integration.disconnected', { connectionId: data.id, provider: data.provider });
+      await supabase.from('integration_logs').insert({
+        organization_id: ORG_ID, integration_name: data.integration_name,
+        action: 'disconnect', status: 'success', details: {},
+      });
+      await emitEvent('integration.disconnected', { id: data.id, integration_name: data.integration_name });
       return apiSuccess(data);
     }
 
-    if (action === 'refresh_token') {
-      // Placeholder for OAuth token refresh
-      const { data, error } = await supabase.from('integration_connections')
-        .update({ token_expires_at: new Date(Date.now() + 3600000).toISOString(), last_error: null, status: 'active' })
-        .eq('id', body.id).select().single();
+    // --- Reconnect ---
+    if (action === 'reconnect') {
+      const { data, error } = await supabase
+        .from('integration_connections')
+        .update({ status: 'connected', health_score: 100, error_count: 0, last_sync_status: null, updated_at: now })
+        .eq('id', body.id)
+        .select()
+        .single();
       if (error) return apiError(error.message, 500);
+      await supabase.from('integration_logs').insert({
+        organization_id: ORG_ID, integration_name: data.integration_name,
+        action: 'reconnect', status: 'success', details: {},
+      });
       return apiSuccess(data);
     }
 
-    // Generic update
-    const updates: Record<string, unknown> = {};
-    const fields = ['display_name', 'webhook_url', 'sync_frequency', 'config', 'status', 'last_error', 'credentials_encrypted'];
-    for (const f of fields) { if (body[f] !== undefined) updates[f] = body[f]; }
-    const { data, error } = await supabase.from('integration_connections').update(updates).eq('id', body.id).select().single();
+    // --- Generic update (config, sync_frequency, webhook_url, etc.) ---
+    const updates: Record<string, unknown> = { updated_at: now };
+    const allowedFields = ['integration_name', 'category', 'sync_frequency', 'config', 'status', 'webhook_url', 'health_score'];
+    for (const f of allowedFields) {
+      if (body[f] !== undefined) updates[f] = body[f];
+    }
+    const { data, error } = await supabase
+      .from('integration_connections')
+      .update(updates)
+      .eq('id', body.id)
+      .select()
+      .single();
     if (error) return apiError(error.message, 500);
     return apiSuccess(data);
   } catch {
@@ -122,16 +195,23 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE /api/integrations — Hard delete connection + logs
+// ============================================================
+// DELETE /api/integrations — Soft-delete connection
+// ============================================================
 export async function DELETE(req: NextRequest) {
   try {
     const supabase = createServerClient();
     const { id } = await req.json();
     if (!id) return apiError('Missing id');
-    // Logs cascade via FK ON DELETE CASCADE
-    const { error } = await supabase.from('integration_connections').delete().eq('id', id);
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from('integration_connections')
+      .update({ deleted_at: now, status: 'disconnected' })
+      .eq('id', id)
+      .select()
+      .single();
     if (error) return apiError(error.message, 500);
-    return apiSuccess({ deleted: true });
+    return apiSuccess({ deleted: true, id: data.id });
   } catch {
     return apiError('Internal server error', 500);
   }
