@@ -11,7 +11,7 @@ import {
   UserCheck, Plug, Phone, GitBranch, Zap, FileText,
   TrendingUp, BookOpen, SlidersHorizontal, ShoppingCart, X,
   Shield, Home, Wifi, Target, PenTool, Headphones, Globe,
-  Database, RefreshCw, LinkIcon, Radio, MapPin, Wrench, Monitor, Package, ClipboardCheck
+  Database, RefreshCw, LinkIcon, Radio, MapPin, Wrench, Monitor, Package, ClipboardCheck, LogOut
 } from "lucide-react";
 
 const primaryNav = [
@@ -269,6 +269,16 @@ export function NavBar() {
               <span className="text-black text-[11px] font-bold">AS</span>
             </div>
           </button>
+          <form action="/api/auth/signout" method="POST">
+            <button
+              type="submit"
+              className="flex items-center gap-1 text-white/60 hover:text-white transition-colors p-1.5 rounded hover:bg-white/8"
+              aria-label="Sign out"
+              title="Sign out"
+            >
+              <LogOut size={16} />
+            </button>
+          </form>
         </div>
       </header>
 
