@@ -145,6 +145,7 @@ export function NavBar() {
   const pathname = usePathname();
   const router = useRouter();
   const [showMore, setShowMore] = useState(false);
+  const [showDocs, setShowDocs] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -269,17 +270,21 @@ export function NavBar() {
               <span className="text-black text-[11px] font-bold">AS</span>
             </div>
           </button>
-          <Link
-            href="/documents"
-            className={`flex items-center gap-1.5 px-2 py-1.5 rounded text-[12px] font-medium transition-all ${
-              isActive("/documents") ? "text-white bg-white/15" : "text-white/60 hover:text-white hover:bg-white/8"
-            }`}
-            aria-current={isActive("/documents") ? "page" : undefined}
-            title="Documents"
-          >
-            <FileText size={14} />
-            <span className="hidden xl:inline">Documents</span>
-          </Link>
+          <div className="relative">
+            <button
+              onClick={() => setShowDocs((v) => !v)}
+              className={`flex items-center gap-1.5 px-2 py-1.5 rounded text-[12px] font-medium transition-all ${
+                isActive("/documents") || showDocs ? "text-white bg-white/15" : "text-white/60 hover:text-white hover:bg-white/8"
+              }`}
+              aria-haspopup="true"
+              aria-expanded={showDocs}
+              title="Documents"
+            >
+              <FileText size={14} />
+              <span className="hidden xl:inline">Documents</span>
+              <ChevronDown size={12} className={`transition-transform ${showDocs ? "rotate-180" : ""}`} />
+            </button>
+          </div>
           <form action="/api/auth/signout" method="POST">
             <button
               type="submit"
@@ -348,6 +353,53 @@ export function NavBar() {
                   role="menuitem"
                 >
                   <Icon size={15} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Documents Dropdown */}
+      {showDocs && (
+        <>
+          <div className="fixed inset-0 z-[60]" onClick={() => setShowDocs(false)} />
+          <div
+            className="fixed top-[56px] right-[120px] w-60 rounded-lg shadow-xl z-[70] py-1"
+            style={{
+              background: "#0A0A0A",
+              border: "1px solid rgba(212,175,55,0.35)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.15) inset",
+            }}
+            role="menu"
+          >
+            <div
+              className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em]"
+              style={{ color: "rgba(255,215,0,0.85)", borderBottom: "1px solid rgba(212,175,55,0.18)" }}
+            >
+              Document Center
+            </div>
+            {[
+              { href: "/documents", label: "All Documents", icon: FileText },
+              { href: "/documents/templates", label: "Templates", icon: ClipboardCheck },
+              { href: "/documents/send-test", label: "Send Test", icon: Zap },
+            ].map((item) => {
+              const Icon = item.icon;
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setShowDocs(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all"
+                  style={{
+                    color: active ? "#FFD700" : "rgba(255,255,255,0.85)",
+                    background: active ? "rgba(212,175,55,0.10)" : "transparent",
+                  }}
+                  role="menuitem"
+                >
+                  <Icon size={14} style={{ color: active ? "#FFD700" : "rgba(255,255,255,0.55)" }} />
                   {item.label}
                 </Link>
               );

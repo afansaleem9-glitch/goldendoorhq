@@ -295,6 +295,197 @@ export function slugForTemplateId(templateId: string): string | null {
   return null;
 }
 
+// -------------------------------------------------------------------------
+// Catalog view — drives the /documents/templates page. Lists ALL 27 templates
+// visible in the PandaDoc account, including duplicates and unrouted ones.
+// Status mirrors the "Unresolved routing TODOs" section of
+// status-2026-04-16.md.
+
+export type TemplateCategory = 'PSA' | 'Certificate' | 'NDA' | 'Commission' | 'Smart Home' | 'Solar' | 'Pre-PTO' | 'Employment' | 'Survey' | 'Invoice' | 'Other';
+export type TemplateCatalogStatus = 'wired' | 'need_input' | 'not_mapped';
+
+export type CatalogEntry = {
+  id: string;
+  name: string;
+  category: TemplateCategory;
+  status: TemplateCatalogStatus;
+  needFromAfan?: string;
+};
+
+export const TEMPLATE_CATALOG: CatalogEntry[] = [
+  // 🟢 Wired — reachable via resolveTemplate, tokens inventoried
+  { id: 'x7sD8bmARvDMG9JpeZ2wRa', name: 'Delta PSA 2025 (3 Cameras)', category: 'PSA', status: 'wired' },
+  { id: 'okjwHGbmeu4AsiMejuZVKQ', name: 'Delta Smart-home PSA (Solar Bundle)', category: 'Solar', status: 'wired' },
+  { id: 'cGLnAbhFXKtsMofw7VBqzb', name: 'Sales Commission Agreement Template', category: 'Commission', status: 'wired' },
+
+  // 🟡 Need Afan input — wired but with caveats
+  {
+    id: 'cRUtQeTU3BXEAXnzFX6sK7',
+    name: 'Delta PSA 2025 (4 Cameras)',
+    category: 'PSA',
+    status: 'need_input',
+    needFromAfan: 'Token inventory not done for 4-cam variant. Confirm same shape as 3-cam, or share template structure.',
+  },
+  {
+    id: 'GX5UXzRMz6DAGGYpJJhDA3',
+    name: 'Delta PSA 2025 (5 Cameras)',
+    category: 'PSA',
+    status: 'need_input',
+    needFromAfan: 'Token inventory not done for 5-cam variant. Confirm same shape as 3-cam, or share template structure.',
+  },
+  {
+    id: 'jt952y8fvEvdL6hR5aNube',
+    name: 'Delta PSA 2025 (6 Cameras)',
+    category: 'PSA',
+    status: 'need_input',
+    needFromAfan: 'Token inventory not done for 6-cam variant. Confirm same shape as 3-cam, or share template structure.',
+  },
+  {
+    id: 'FdTsszxQbmJi99LczatMLF',
+    name: 'Delta PSA 2025 (7 Cameras)',
+    category: 'PSA',
+    status: 'need_input',
+    needFromAfan: 'Token inventory not done for 7-cam variant. Confirm same shape as 3-cam, or share template structure.',
+  },
+  {
+    id: 'TjoLutXJ6Q67Xns5NqmfEo',
+    name: 'Delta PSA 2025 (8 Cameras)',
+    category: 'PSA',
+    status: 'need_input',
+    needFromAfan: 'Token inventory not done for 8-cam variant. Confirm same shape as 3-cam, or share template structure.',
+  },
+  {
+    id: 'JnPPKAujaDo3e6qNAm7arj',
+    name: 'Smart Home Agreement',
+    category: 'Smart Home',
+    status: 'need_input',
+    needFromAfan: 'Template declares no tokens or fields. Confirm this is the right template, and what tokens (if any) it should expose.',
+  },
+  {
+    id: 'QQ59tYkpvoeJHXznjnhr8Q',
+    name: 'Certificate of Completion',
+    category: 'Certificate',
+    status: 'need_input',
+    needFromAfan: 'A duplicate "Certificate of Completion" (5oiCZrxEVtbgCDyqfW2KEH) also exists. Confirm which is canonical, plus which states require the Affidavit/Lien-Waiver variant.',
+  },
+  {
+    id: '3BPdVMJBbRSRAJmW4bGAXe',
+    name: 'NDA',
+    category: 'NDA',
+    status: 'need_input',
+    needFromAfan: 'A duplicate NDA template (zGZnssLDkGRTG7in4o9BJ8) exists. Confirm canonical version.',
+  },
+  {
+    id: 'ybMq7zqLXtxNivWY8NUyMA',
+    name: 'Affidavit of Project Completion & Lien Waiver',
+    category: 'Certificate',
+    status: 'need_input',
+    needFromAfan: 'Possible match for state-specific NOC routing. Which states require this variant instead of the generic Certificate of Completion?',
+  },
+
+  // 🟡 Duplicates of wired templates — pick canonical
+  {
+    id: '5oiCZrxEVtbgCDyqfW2KEH',
+    name: 'Certificate of Completion (duplicate)',
+    category: 'Certificate',
+    status: 'need_input',
+    needFromAfan: 'Duplicate of QQ59tYkpvoeJHXznjnhr8Q. Confirm which is canonical or delete one.',
+  },
+  {
+    id: 'zGZnssLDkGRTG7in4o9BJ8',
+    name: 'NDA (duplicate)',
+    category: 'NDA',
+    status: 'need_input',
+    needFromAfan: 'Duplicate of 3BPdVMJBbRSRAJmW4bGAXe. Confirm canonical or delete one.',
+  },
+  {
+    id: '3n5DXGFu7JLc46tEQAxDMk',
+    name: 'Delta Smarthome PSA (Solar Bundle).pdf',
+    category: 'Solar',
+    status: 'need_input',
+    needFromAfan: 'Near-duplicate of okjwHGbmeu4AsiMejuZVKQ. Confirm which is canonical (the .pdf one looks like a source upload).',
+  },
+  {
+    id: 'tPPb5r7tcNJjTXdVR7mAv3',
+    name: 'Delta Technician Employment Agreement 2026.docx',
+    category: 'Employment',
+    status: 'need_input',
+    needFromAfan: 'Duplicate of 5ZBGnXfRFm8poHpBjck7xY (.docx vs primary). Confirm canonical.',
+  },
+  {
+    id: 'w7MfYVB9CD7DgUpyUBXrwi',
+    name: 'Delta PSA 2025 (6 Cameras) copy 3',
+    category: 'PSA',
+    status: 'need_input',
+    needFromAfan: 'Looks like a leftover scratch copy of jt952y8fvEvdL6hR5aNube. Safe to delete?',
+  },
+
+  // ⚪ Not mapped — exists in PandaDoc, no routing rule yet
+  {
+    id: 'GFaFKztXUDuwH7WPuVzZCD',
+    name: 'Installer Contract template',
+    category: 'Employment',
+    status: 'not_mapped',
+  },
+  {
+    id: '5ZBGnXfRFm8poHpBjck7xY',
+    name: 'Delta Technician Employment Agreement 2026',
+    category: 'Employment',
+    status: 'not_mapped',
+  },
+  {
+    id: 'N9k7ZLU2d7PABEfCFUAuDP',
+    name: 'Post Install Survey',
+    category: 'Survey',
+    status: 'not_mapped',
+  },
+  {
+    id: 'U9TFAubsCnTX7DRuTkxm5M',
+    name: 'Home Automation Invoice',
+    category: 'Invoice',
+    status: 'not_mapped',
+  },
+  {
+    id: 'Gv87Y6AqAhmNgdPRRfRT3S',
+    name: 'Pre PTO Payment Request template',
+    category: 'Pre-PTO',
+    status: 'not_mapped',
+  },
+  {
+    id: 'BjFcvJXXiGWANkzbKpyPRJ',
+    name: 'Pre PTO Payment Request template copy',
+    category: 'Pre-PTO',
+    status: 'need_input',
+    needFromAfan: 'One of four near-duplicate Pre-PTO templates. Confirm canonical version (Gv87Y6AqAhmNgdPRRfRT3S is current default).',
+  },
+  {
+    id: 'eJbB2ZrqpGYjeUBTVmuWWd',
+    name: 'Pre-PTO_Payment_Request copy',
+    category: 'Pre-PTO',
+    status: 'need_input',
+    needFromAfan: 'One of four near-duplicate Pre-PTO templates. Confirm canonical version.',
+  },
+  {
+    id: 'BAXfNahdMWUw2ZjbHYXiP3',
+    name: 'Pre-PTO_Payment_Request',
+    category: 'Pre-PTO',
+    status: 'need_input',
+    needFromAfan: 'One of four near-duplicate Pre-PTO templates. Confirm canonical version.',
+  },
+  {
+    id: 'X2uHVMj5pVm736pCqQcGYL',
+    name: 'New template',
+    category: 'Other',
+    status: 'not_mapped',
+  },
+  {
+    id: 'VFNEP9jg2yxQzfwfPUkNxJ',
+    name: 'E07EC826 2',
+    category: 'Other',
+    status: 'not_mapped',
+  },
+];
+
 export const DOC_TYPES: DocType[] = [
   'psa',
   'certificate_of_completion',

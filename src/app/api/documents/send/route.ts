@@ -166,6 +166,23 @@ export async function POST(req: NextRequest) {
     body.title?.trim() ||
     `${body.doc_type} — ${project.customer_first_name ?? ''} ${project.customer_last_name ?? ''}`.trim();
 
+  // Dry-run short-circuit: return what would have been sent without touching
+  // PandaDoc or the DB. Used by /documents/send-test playground.
+  const dryRun = req.nextUrl.searchParams.get('dry_run') === 'true';
+  if (dryRun) {
+    return apiSuccess({
+      dry_run: true,
+      template_id: templateId,
+      template_slug: slugForTemplateId(templateId),
+      template_name: resolvedTemplate?.name ?? null,
+      title: docTitle,
+      recipient,
+      tokens,
+      project_id: project.id,
+      deal_context: isRoutable ? dealContext : null,
+    });
+  }
+
   const createRes = await createDocumentFromTemplate({
     name: docTitle,
     template_uuid: templateId,
