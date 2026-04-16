@@ -365,21 +365,8 @@ export function NavBar() {
       {showDocs && (
         <>
           <div className="fixed inset-0 z-[60]" onClick={() => setShowDocs(false)} />
-          <div
-            className="fixed top-[56px] right-[120px] w-60 rounded-lg shadow-xl z-[70] py-1"
-            style={{
-              background: "#0A0A0A",
-              border: "1px solid rgba(212,175,55,0.35)",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.15) inset",
-            }}
-            role="menu"
-          >
-            <div
-              className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em]"
-              style={{ color: "rgba(255,215,0,0.85)", borderBottom: "1px solid rgba(212,175,55,0.18)" }}
-            >
-              Document Center
-            </div>
+          <div className="fixed top-[56px] right-[120px] w-60 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[70]" role="menu">
+            <div className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">Document Center</div>
             {[
               { href: "/documents", label: "All Documents", icon: FileText },
               { href: "/documents/templates", label: "Templates", icon: ClipboardCheck },
@@ -392,14 +379,10 @@ export function NavBar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setShowDocs(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all"
-                  style={{
-                    color: active ? "#FFD700" : "rgba(255,255,255,0.85)",
-                    background: active ? "rgba(212,175,55,0.10)" : "transparent",
-                  }}
+                  className={`flex items-center gap-2.5 px-3 py-2 text-[13px] transition-all ${active ? "text-black font-semibold bg-gray-50" : "text-gray-600 hover:text-black hover:bg-gray-50"}`}
                   role="menuitem"
                 >
-                  <Icon size={14} style={{ color: active ? "#FFD700" : "rgba(255,255,255,0.55)" }} />
+                  <Icon size={14} />
                   {item.label}
                 </Link>
               );

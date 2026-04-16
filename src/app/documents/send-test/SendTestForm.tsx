@@ -142,82 +142,55 @@ export function SendTestForm() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#F5F5F5' }}>
-      <div
-        className="border-b"
-        style={{
-          borderColor: 'rgba(212,175,55,0.15)',
-          background: 'linear-gradient(180deg, rgba(212,175,55,0.05) 0%, transparent 100%)',
-        }}
-      >
-        <div className="max-w-[1100px] mx-auto px-6 py-6 flex items-center gap-4">
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(184,134,11,0.15))',
-              border: '1px solid rgba(212,175,55,0.35)',
-            }}
-          >
-            <Beaker size={18} style={{ color: '#FFD700' }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-[20px] font-bold tracking-tight">Send Test</h1>
-            <p className="text-[12px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              Template-routing playground · Preview is safe · Send for real goes to the recipient email
-            </p>
-          </div>
+    <div className="p-5 max-w-[1100px] mx-auto space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center">
+          <Beaker size={18} className="text-gray-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-[20px] font-extrabold text-black tracking-tight">Send Test</h1>
+          <p className="text-[12px] text-gray-500">
+            Template-routing playground · Preview is safe · Send for real goes to the recipient email
+          </p>
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <section>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <section className="space-y-4">
           <NoticeBanner />
-          <div
-            className="rounded-lg p-5 mt-4"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
+          <div className="bg-white rounded-xl border border-gray-200/60 p-5">
             <Field label="Doc type">
               <Select value={docType} onChange={(v) => setDocType(v as typeof docType)}>
                 {DOC_TYPES.map((d) => (
-                  <option key={d.value} value={d.value} style={{ background: '#0A0A0A' }}>
-                    {d.label}
-                  </option>
+                  <option key={d.value} value={d.value}>{d.label}</option>
                 ))}
               </Select>
             </Field>
             <Field label="Vertical">
               <Select value={vertical} onChange={setVertical}>
                 {VERTICALS.map((d) => (
-                  <option key={d.value} value={d.value} style={{ background: '#0A0A0A' }}>
-                    {d.label}
-                  </option>
+                  <option key={d.value} value={d.value}>{d.label}</option>
                 ))}
               </Select>
             </Field>
             <Field label="State">
               <Select value={stateCode} onChange={setStateCode}>
                 {US_STATES.map((s) => (
-                  <option key={s || 'none'} value={s} style={{ background: '#0A0A0A' }}>
-                    {s || '— none —'}
-                  </option>
+                  <option key={s || 'none'} value={s}>{s || '— none —'}</option>
                 ))}
               </Select>
             </Field>
             <Field label="Financing">
               <Select value={financing} onChange={setFinancing}>
                 {FINANCING.map((d) => (
-                  <option key={d.value} value={d.value} style={{ background: '#0A0A0A' }}>
-                    {d.label}
-                  </option>
+                  <option key={d.value} value={d.value}>{d.label}</option>
                 ))}
               </Select>
             </Field>
             <Field label="Language">
               <Select value={language} onChange={setLanguage}>
                 {LANGUAGES.map((d) => (
-                  <option key={d.value} value={d.value} style={{ background: '#0A0A0A' }}>
-                    {d.label}
-                  </option>
+                  <option key={d.value} value={d.value}>{d.label}</option>
                 ))}
               </Select>
             </Field>
@@ -225,9 +198,7 @@ export function SendTestForm() {
               <Field label="Camera count">
                 <Select value={String(cameraCount)} onChange={(v) => setCameraCount(parseInt(v, 10))}>
                   {CAMERA_COUNTS.map((n) => (
-                    <option key={n} value={String(n)} style={{ background: '#0A0A0A' }}>
-                      {n}
-                    </option>
+                    <option key={n} value={String(n)}>{n}</option>
                   ))}
                 </Select>
               </Field>
@@ -239,16 +210,11 @@ export function SendTestForm() {
               <Input value={projectId} onChange={setProjectId} mono />
             </Field>
 
-            <div className="flex items-center gap-3 mt-5">
+            <div className="flex items-center gap-2 mt-5">
               <button
                 onClick={() => fire('preview')}
                 disabled={busy !== null}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-semibold transition-all disabled:opacity-50"
-                style={{
-                  background: 'transparent',
-                  border: '1px solid rgba(212,175,55,0.55)',
-                  color: '#FFD700',
-                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50 disabled:opacity-50 transition-all"
               >
                 <Eye size={13} />
                 {busy === 'preview' ? 'Previewing…' : 'Preview template selection'}
@@ -256,12 +222,7 @@ export function SendTestForm() {
               <button
                 onClick={() => fire('send')}
                 disabled={busy !== null}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-semibold transition-all disabled:opacity-50"
-                style={{
-                  background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #B8860B 100%)',
-                  color: '#1a1208',
-                  boxShadow: '0 4px 18px rgba(212,175,55,0.25)',
-                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-semibold text-white bg-black hover:bg-gray-900 disabled:opacity-50 transition-all"
               >
                 <Send size={13} />
                 {busy === 'send' ? 'Sending…' : 'Send for real'}
@@ -271,33 +232,13 @@ export function SendTestForm() {
         </section>
 
         <section>
-          <h2
-            className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-3"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
-          >
-            Result
-          </h2>
-          <div
-            className="rounded-lg p-5"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', minHeight: '300px' }}
-          >
+          <h2 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-3">Result</h2>
+          <div className="bg-white rounded-xl border border-gray-200/60 p-5 min-h-[300px]">
             <ResultPanel result={result} />
           </div>
 
-          <h2
-            className="text-[10px] font-semibold uppercase tracking-[0.18em] mt-6 mb-2"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
-          >
-            Request body
-          </h2>
-          <pre
-            className="rounded-lg p-4 text-[11px] font-mono overflow-x-auto"
-            style={{
-              background: 'rgba(0,0,0,0.4)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.75)',
-            }}
-          >
+          <h2 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Request body</h2>
+          <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-[11px] font-mono text-gray-700 overflow-x-auto">
             {JSON.stringify(requestBody, null, 2)}
           </pre>
         </section>
@@ -308,11 +249,8 @@ export function SendTestForm() {
 
 function NoticeBanner() {
   return (
-    <div
-      className="flex items-start gap-3 px-4 py-3 rounded-lg"
-      style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.30)', color: '#BFDBFE' }}
-    >
-      <Info size={15} className="shrink-0 mt-0.5" />
+    <div className="flex items-start gap-3 px-4 py-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-900">
+      <Info size={15} className="shrink-0 mt-0.5 text-blue-600" />
       <p className="text-[12px] leading-snug">
         Test playground — safe to click around. <strong>Preview</strong> only resolves the routing rules and
         echoes the tokens. <strong>Send for real</strong> creates a PandaDoc document and emails it to the
@@ -325,7 +263,7 @@ function NoticeBanner() {
 function ResultPanel({ result }: { result: ResultState }) {
   if (!result) {
     return (
-      <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+      <p className="text-[13px] text-gray-400">
         Hit <em>Preview</em> to resolve the template, or <em>Send for real</em> to create the PandaDoc
         document.
       </p>
@@ -337,15 +275,15 @@ function ResultPanel({ result }: { result: ResultState }) {
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <AlertTriangle size={16} style={{ color: isMappingGap ? '#FDE68A' : '#FCA5A5' }} />
-          <span className="text-[13px] font-semibold" style={{ color: isMappingGap ? '#FDE68A' : '#FCA5A5' }}>
+          <AlertTriangle size={16} className={isMappingGap ? 'text-amber-600' : 'text-red-600'} />
+          <span className={`text-[13px] font-semibold ${isMappingGap ? 'text-amber-800' : 'text-red-700'}`}>
             {isMappingGap ? `Routing gap (HTTP ${result.status})` : `Error (HTTP ${result.status})`}
           </span>
         </div>
-        <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.85)' }}>{result.error}</p>
+        <p className="text-[13px] text-gray-700">{result.error}</p>
         {isMappingGap && (
-          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Code: <code>{result.code}</code>
+          <p className="text-[11px] text-gray-500">
+            Code: <code className="font-mono">{result.code}</code>
           </p>
         )}
       </div>
@@ -356,10 +294,8 @@ function ResultPanel({ result }: { result: ResultState }) {
     return (
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Eye size={16} style={{ color: '#FFD700' }} />
-          <span className="text-[13px] font-semibold" style={{ color: '#FFD700' }}>
-            Preview only — nothing was sent
-          </span>
+          <Eye size={16} className="text-black" />
+          <span className="text-[13px] font-semibold text-black">Preview only — nothing was sent</span>
         </div>
         <div className="text-[13px] space-y-1">
           <KV label="Template" value={result.template_name ?? result.template_slug ?? '—'} />
@@ -368,17 +304,8 @@ function ResultPanel({ result }: { result: ResultState }) {
           <KV label="Title" value={result.title ?? '—'} />
         </div>
         <div>
-          <p className="text-[10px] uppercase tracking-wider mt-3 mb-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Tokens
-          </p>
-          <pre
-            className="rounded-md p-3 text-[11px] font-mono overflow-x-auto"
-            style={{
-              background: 'rgba(0,0,0,0.4)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.75)',
-            }}
-          >
+          <p className="text-[10px] uppercase tracking-wider text-gray-400 mt-3 mb-1">Tokens</p>
+          <pre className="bg-gray-50 border border-gray-200 rounded-md p-3 text-[11px] font-mono text-gray-700 overflow-x-auto">
             {JSON.stringify(result.tokens ?? {}, null, 2)}
           </pre>
         </div>
@@ -389,10 +316,8 @@ function ResultPanel({ result }: { result: ResultState }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <CheckCircle2 size={16} style={{ color: '#86efac' }} />
-        <span className="text-[13px] font-semibold" style={{ color: '#86efac' }}>
-          Sent successfully
-        </span>
+        <CheckCircle2 size={16} className="text-emerald-600" />
+        <span className="text-[13px] font-semibold text-emerald-700">Sent successfully</span>
       </div>
       <div className="text-[13px] space-y-1">
         <KV label="Document ID" value={result.document_id} mono />
@@ -402,11 +327,7 @@ function ResultPanel({ result }: { result: ResultState }) {
       <div className="flex items-center gap-2 pt-2">
         <Link
           href={`/documents/${result.document_id}`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all"
-          style={{
-            background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #B8860B 100%)',
-            color: '#1a1208',
-          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-white bg-black hover:bg-gray-900 transition-all"
         >
           Open document
           <ExternalLink size={11} />
@@ -419,12 +340,7 @@ function ResultPanel({ result }: { result: ResultState }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block mb-3">
-      <span
-        className="text-[10px] font-semibold uppercase tracking-wider block mb-1"
-        style={{ color: 'rgba(255,255,255,0.45)' }}
-      >
-        {label}
-      </span>
+      <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-1">{label}</span>
       {children}
     </label>
   );
@@ -443,12 +359,7 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-md px-2.5 py-1.5 text-[13px] outline-none"
-      style={{
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        color: '#F5F5F5',
-      }}
+      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:border-black outline-none"
     >
       {children}
     </select>
@@ -471,12 +382,7 @@ function Input({
       type={type ?? 'text'}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-full rounded-md px-2.5 py-1.5 text-[13px] outline-none ${mono ? 'font-mono' : ''}`}
-      style={{
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        color: '#F5F5F5',
-      }}
+      className={`w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] focus:border-black outline-none ${mono ? 'font-mono' : ''}`}
     />
   );
 }
@@ -484,10 +390,8 @@ function Input({
 function KV({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="flex gap-2">
-      <span style={{ color: 'rgba(255,255,255,0.45)', minWidth: 110 }}>{label}</span>
-      <span className={mono ? 'font-mono break-all' : ''} style={{ color: 'rgba(255,255,255,0.92)' }}>
-        {value}
-      </span>
+      <span className="text-gray-500" style={{ minWidth: 110 }}>{label}</span>
+      <span className={`text-black ${mono ? 'font-mono break-all' : ''}`}>{value}</span>
     </div>
   );
 }

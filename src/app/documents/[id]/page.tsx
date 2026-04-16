@@ -20,22 +20,19 @@ type DocRow = {
   project: { project_number: string | null; customer_first_name: string | null; customer_last_name: string | null } | null;
 };
 
-const STATUS_STYLE: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  pending: { bg: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.18)', text: 'rgba(255,255,255,0.75)', label: 'Pending' },
-  sent: { bg: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.18)', text: 'rgba(255,255,255,0.75)', label: 'Sent' },
-  viewed: { bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.45)', text: '#93C5FD', label: 'Viewed' },
-  signed: { bg: 'rgba(212,175,55,0.14)', border: 'rgba(212,175,55,0.55)', text: '#FFD700', label: 'Signed' },
-  rejected: { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.45)', text: '#FCA5A5', label: 'Rejected' },
-  expired: { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.45)', text: '#FCA5A5', label: 'Expired' },
+const STATUS_STYLE: Record<string, { className: string; label: string }> = {
+  pending: { className: 'bg-gray-100 text-gray-700 border-gray-200', label: 'Pending' },
+  sent: { className: 'bg-gray-100 text-gray-700 border-gray-200', label: 'Sent' },
+  viewed: { className: 'bg-blue-50 text-blue-700 border-blue-200', label: 'Viewed' },
+  signed: { className: 'bg-emerald-50 text-emerald-700 border-emerald-200', label: 'Signed' },
+  rejected: { className: 'bg-red-50 text-red-700 border-red-200', label: 'Rejected' },
+  expired: { className: 'bg-red-50 text-red-700 border-red-200', label: 'Expired' },
 };
 
 function StatusPill({ status }: { status: string }) {
   const s = STATUS_STYLE[status] ?? STATUS_STYLE.pending;
   return (
-    <span
-      className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide"
-      style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.text }}
-    >
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border ${s.className}`}>
       {s.label}
     </span>
   );
@@ -55,7 +52,7 @@ function projectLabel(p: DocRow['project']): string {
   return [num, name].filter(Boolean).join(' · ') || '—';
 }
 
-type TimelineEntry = { at: string; label: string; detail?: string; tone: 'neutral' | 'gold' | 'blue' | 'red' };
+type TimelineEntry = { at: string; label: string; detail?: string; tone: 'neutral' | 'success' | 'info' | 'danger' };
 
 function buildTimeline(row: DocRow, details: PandaDocDocumentDetails | null): TimelineEntry[] {
   const out: TimelineEntry[] = [];
@@ -73,15 +70,15 @@ function buildTimeline(row: DocRow, details: PandaDocDocumentDetails | null): Ti
     const status = typeof e.status === 'string' ? e.status : '';
     if (!at) continue;
     const label = status === 'document.completed' ? 'Signed' : status === 'document.viewed' ? 'Viewed' : status === 'document.sent' ? 'Sent' : status === 'document.declined' ? 'Declined' : status === 'document.expired' ? 'Expired' : status || 'Webhook';
-    const tone: TimelineEntry['tone'] = status === 'document.completed' ? 'gold' : status === 'document.viewed' ? 'blue' : status === 'document.declined' || status === 'document.expired' ? 'red' : 'neutral';
+    const tone: TimelineEntry['tone'] = status === 'document.completed' ? 'success' : status === 'document.viewed' ? 'info' : status === 'document.declined' || status === 'document.expired' ? 'danger' : 'neutral';
     out.push({ at, label, tone });
   }
 
   if (row.signed_at) {
-    out.push({ at: row.signed_at, label: 'Signed', detail: row.signed_by ?? undefined, tone: 'gold' });
+    out.push({ at: row.signed_at, label: 'Signed', detail: row.signed_by ?? undefined, tone: 'success' });
   }
   if (details?.date_completed && details.date_completed !== row.signed_at) {
-    out.push({ at: details.date_completed, label: 'PandaDoc: completed', tone: 'gold' });
+    out.push({ at: details.date_completed, label: 'PandaDoc: completed', tone: 'success' });
   }
 
   const seen = new Set<string>();
@@ -94,9 +91,19 @@ function buildTimeline(row: DocRow, details: PandaDocDocumentDetails | null): Ti
   return unique.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
 }
 
-function toneColor(tone: TimelineEntry['tone']): string {
-  return tone === 'gold' ? '#FFD700' : tone === 'blue' ? '#93C5FD' : tone === 'red' ? '#FCA5A5' : 'rgba(255,255,255,0.55)';
-}
+const TONE_DOT: Record<TimelineEntry['tone'], string> = {
+  neutral: 'bg-gray-300',
+  success: 'bg-emerald-500',
+  info: 'bg-blue-500',
+  danger: 'bg-red-500',
+};
+
+const TONE_TEXT: Record<TimelineEntry['tone'], string> = {
+  neutral: 'text-gray-700',
+  success: 'text-emerald-700',
+  info: 'text-blue-700',
+  danger: 'text-red-700',
+};
 
 export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -145,76 +152,51 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
   const recipients = details?.recipients ?? [];
 
   return (
-    <div className="min-h-screen" style={{ background: '#0A0A0A', color: '#F5F5F5' }}>
-      <div
-        className="border-b"
-        style={{ borderColor: 'rgba(212,175,55,0.15)', background: 'linear-gradient(180deg, rgba(212,175,55,0.05) 0%, transparent 100%)' }}
-      >
-        <div className="max-w-[1100px] mx-auto px-6 py-6">
-          <Link
-            href="/documents"
-            className="inline-flex items-center gap-1.5 text-[12px] mb-4 transition-colors"
-            style={{ color: 'rgba(255,255,255,0.55)' }}
-          >
-            <ArrowLeft size={13} />
-            Back to Documents
-          </Link>
-          <div className="flex items-start gap-4">
-            <div
-              className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0 mt-1"
-              style={{
-                background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(184,134,11,0.15))',
-                border: '1px solid rgba(212,175,55,0.35)',
-              }}
-            >
-              <FileText size={18} style={{ color: '#FFD700' }} />
+    <div className="p-5 max-w-[1100px] mx-auto space-y-5">
+      <div>
+        <Link href="/documents" className="inline-flex items-center gap-1.5 text-[12px] text-gray-500 hover:text-black mb-4 transition-colors">
+          <ArrowLeft size={13} />
+          Back to Documents
+        </Link>
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-lg bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 mt-1">
+            <FileText size={18} className="text-gray-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-[22px] font-extrabold text-black tracking-tight truncate">{row.title || 'Untitled document'}</h1>
+              <StatusPill status={row.status ?? 'pending'} />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-[22px] font-bold tracking-tight truncate">{row.title || 'Untitled document'}</h1>
-                <StatusPill status={row.status ?? 'pending'} />
-              </div>
-              <p className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                {row.doc_type ?? '—'} · {projectLabel(row.project)}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {row.signature_request_id && (
-                <a
-                  href={`/api/documents/${row.id}/download`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all"
-                  style={{
-                    background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #B8860B 100%)',
-                    color: '#1a1208',
-                    boxShadow: '0 4px 18px rgba(212,175,55,0.25)',
-                  }}
-                >
-                  <Download size={13} />
-                  Download PDF
-                </a>
-              )}
-              {row.signature_request_id && (
-                <a
-                  href={`https://app.pandadoc.com/a/#/documents/${row.signature_request_id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    color: 'rgba(255,255,255,0.85)',
-                  }}
-                >
-                  PandaDoc
-                  <ExternalLink size={11} />
-                </a>
-              )}
-            </div>
+            <p className="text-[12px] text-gray-500 mt-1">
+              {row.doc_type ?? '—'} · {projectLabel(row.project)}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {row.signature_request_id && (
+              <a
+                href={`/api/documents/${row.id}/download`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-black hover:bg-gray-900 transition-all"
+              >
+                <Download size={13} />
+                Download PDF
+              </a>
+            )}
+            {row.signature_request_id && (
+              <a
+                href={`https://app.pandadoc.com/a/#/documents/${row.signature_request_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-gray-600 border border-gray-200 hover:bg-gray-50 transition-all"
+              >
+                PandaDoc
+                <ExternalLink size={11} />
+              </a>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <section className="lg:col-span-2 space-y-5">
           <Panel title="Overview">
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-[13px]">
@@ -228,7 +210,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
               <Field label="PandaDoc ID" value={row.signature_request_id} mono />
             </dl>
             {providerError && (
-              <p className="mt-4 text-[12px]" style={{ color: '#FCA5A5' }}>
+              <p className="mt-4 text-[12px] text-red-600">
                 Couldn&apos;t load PandaDoc details: {providerError}
               </p>
             )}
@@ -236,24 +218,20 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
 
           <Panel title="Activity">
             {timeline.length === 0 ? (
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>No activity yet.</p>
+              <p className="text-[13px] text-gray-400">No activity yet.</p>
             ) : (
               <ol className="relative pl-5">
-                <span
-                  className="absolute left-[7px] top-1 bottom-1 w-px"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}
-                />
+                <span className="absolute left-[7px] top-1 bottom-1 w-px bg-gray-200" />
                 {timeline.map((e, i) => (
                   <li key={i} className="relative pb-3 last:pb-0">
                     <span
-                      className="absolute -left-[13px] top-1.5 w-2.5 h-2.5 rounded-full"
-                      style={{ background: toneColor(e.tone), boxShadow: `0 0 0 3px rgba(10,10,10,1)` }}
+                      className={`absolute -left-[13px] top-1.5 w-2.5 h-2.5 rounded-full ring-2 ring-white ${TONE_DOT[e.tone]}`}
                     />
                     <div className="flex items-center gap-2 text-[13px]">
-                      <span className="font-semibold" style={{ color: toneColor(e.tone) }}>{e.label}</span>
-                      {e.detail && <span style={{ color: 'rgba(255,255,255,0.55)' }}>· {e.detail}</span>}
+                      <span className={`font-semibold ${TONE_TEXT[e.tone]}`}>{e.label}</span>
+                      {e.detail && <span className="text-gray-500">· {e.detail}</span>}
                     </div>
-                    <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{fmt(e.at)}</p>
+                    <p className="text-[11px] mt-0.5 text-gray-400">{fmt(e.at)}</p>
                   </li>
                 ))}
               </ol>
@@ -264,7 +242,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
         <aside className="space-y-5">
           <Panel title="Recipients">
             {recipients.length === 0 ? (
-              <p className="text-[13px]" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <p className="text-[13px] text-gray-400">
                 {row.signature_request_id ? 'No recipients reported.' : 'PandaDoc not linked.'}
               </p>
             ) : (
@@ -274,21 +252,20 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
                   return (
                     <li key={r.id ?? `${r.email}-${i}`} className="flex items-start gap-3">
                       <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                        style={{
-                          background: r.has_completed ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${r.has_completed ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.12)'}`,
-                          color: r.has_completed ? '#FFD700' : 'rgba(255,255,255,0.6)',
-                        }}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border ${
+                          r.has_completed
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                            : 'bg-gray-50 border-gray-200 text-gray-500'
+                        }`}
                       >
                         {r.has_completed ? <CheckCircle2 size={15} /> : <UserIcon size={14} />}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] font-medium truncate">{name}</p>
-                        <p className="text-[11px] flex items-center gap-1 truncate" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        <p className="text-[13px] font-medium text-black truncate">{name}</p>
+                        <p className="text-[11px] flex items-center gap-1 truncate text-gray-500">
                           <Mail size={10} /> {r.email}
                         </p>
-                        <p className="text-[11px] mt-0.5 flex items-center gap-1" style={{ color: r.has_completed ? '#FFD700' : 'rgba(255,255,255,0.45)' }}>
+                        <p className={`text-[11px] mt-0.5 flex items-center gap-1 ${r.has_completed ? 'text-emerald-700' : 'text-gray-400'}`}>
                           {r.has_completed ? <CheckCircle2 size={10} /> : <Clock size={10} />}
                           {r.has_completed ? 'Completed' : 'Awaiting action'}
                           {r.role ? ` · ${r.role}` : ''}
@@ -308,16 +285,8 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div
-      className="rounded-lg p-5"
-      style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}
-    >
-      <h2
-        className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-3"
-        style={{ color: 'rgba(255,255,255,0.5)' }}
-      >
-        {title}
-      </h2>
+    <div className="bg-white rounded-xl border border-gray-200/60 p-5">
+      <h2 className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-3">{title}</h2>
       {children}
     </div>
   );
@@ -326,11 +295,8 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 function Field({ label, value, mono }: { label: string; value: string | null | undefined; mono?: boolean }) {
   return (
     <div>
-      <dt className="text-[10px] uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</dt>
-      <dd
-        className={`${mono ? 'font-mono text-[12px]' : 'text-[13px]'} mt-0.5 break-words`}
-        style={{ color: value ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.35)' }}
-      >
+      <dt className="text-[10px] uppercase tracking-wider text-gray-400">{label}</dt>
+      <dd className={`${mono ? 'font-mono text-[12px]' : 'text-[13px]'} mt-0.5 break-words ${value ? 'text-black' : 'text-gray-300'}`}>
         {value || '—'}
       </dd>
     </div>
